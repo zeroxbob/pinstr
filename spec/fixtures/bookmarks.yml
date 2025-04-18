@@ -1,0 +1,7 @@
+example_bookmark:
+  user_id: 1
+  url: "https://example.com"
+  title: "Fixture Bookmark"
+  description: "A fixture-based bookmark"
+  event_id: "fixture_event_123"
+  created_at: 2025-04-18 00:00:00
