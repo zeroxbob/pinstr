@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_18_154344) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_18_193248) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "bookmark_tags", force: :cascade do |t|
+    t.bigint "bookmark_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bookmark_id"], name: "index_bookmark_tags_on_bookmark_id"
+    t.index ["tag_id"], name: "index_bookmark_tags_on_tag_id"
+  end
 
   create_table "bookmarks", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -25,6 +34,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_18_154344) do
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
 
+  create_table "tags", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "public_key", null: false
     t.string "username"
@@ -34,5 +50,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_18_154344) do
     t.index ["public_key"], name: "index_users_on_public_key", unique: true
   end
 
+  add_foreign_key "bookmark_tags", "bookmarks"
+  add_foreign_key "bookmark_tags", "tags"
   add_foreign_key "bookmarks", "users"
 end
