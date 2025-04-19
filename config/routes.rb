@@ -14,4 +14,5 @@ Rails.application.routes.draw do
   delete "/auth", to: "sessions#destroy"
 
   resources :sessions
+  resources :bookmarks
 end

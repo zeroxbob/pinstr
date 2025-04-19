@@ -1,6 +1,4 @@
-<h1><%= action_name.capitalize %> Bookmark</h1>
-
-<%= form_with(model: @bookmark, local: true) do |form| %>
+<%= form_with(model: @bookmark, local: true, data: { controller: "nostr-sign" }) do |form| %>
   <% if @bookmark.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h2>
@@ -15,7 +13,7 @@
 
   <div>
     <%= form.label :title %><br />
-    <%= form.text_field :title %>
+    <%= form.text_field :title, name: "content" %>
   </div>
 
   <div>
