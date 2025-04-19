@@ -1,0 +1,1 @@
+- We are working on a Nostr bookmarking application using Ruby on Rails in the /pinstr directory. You can run Rails commands with sh rails_cmd.sh ..., so sh rails_cmd.sh db:migrate.
