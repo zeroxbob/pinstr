@@ -13,4 +13,5 @@ Rails.application.routes.draw do
     post "/auth", to: "sessions#create"
   delete "/auth", to: "sessions#destroy"
 
+  resources :sessions
 end
