@@ -18,25 +18,17 @@ class BookmarksController < ApplicationController
 
   # POST /bookmarks
   def create
-    @bookmark = current_user.bookmarks.new(bookmark_params)
-
     # Prepare event data for signing
-    event_data = {
-      title: @bookmark.title,
-      url: @bookmark.url,
-      description: @bookmark.description
-    }
+    signed_event_param = params[:signed_event]
 
-    # Handle signed event
-    signed_event = handle_signed_event(params[:signed_event])
+    if signed_event_param
+      signed_event = handle_signed_event(signed_event_param)
+      Bookmark.create!(signed_event) if signed_event
 
-    if signed_event && @bookmark.save
-      # Publish to Nostr relays
-      NostrService.new.publish_event(signed_event)
-
-      redirect_to @bookmark, notice: 'Bookmark was successfully created and published to Nostr.'
+      # Optionally, send to Nostr relays
+      render json: { status: 'success', message: 'Bookmark was successfully created and sent to Nostr.' }
     else
-      render :new, alert: 'There was an error creating the bookmark.'
+      render json: { status: 'error', message: 'Signing failed.' }, status: :unprocessable_entity
     end
   end
 
@@ -74,7 +66,7 @@ class BookmarksController < ApplicationController
   end
 
   def handle_signed_event(signed_event_param)
-    # Logic to handle the signed event, typically parsing and validating
+    # Sample parse logic - customize as needed
     JSON.parse(signed_event_param) rescue nil
   end
 end

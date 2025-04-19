@@ -10,7 +10,7 @@ export default class extends Controller {
 
     try {
       const formData = new FormData(this.element)
-      const nostrEvent = this.prepareNostrEvent(formData)
+      const nostrEvent = await this.prepareNostrEvent(formData)
 
       const signedEvent = await this.signEventWithExtension(nostrEvent)
 
@@ -24,21 +24,49 @@ export default class extends Controller {
     }
   }
 
-  prepareNostrEvent(formData) {
-    // Extract the event data from the form and prepare it
-    return {
-      // Placeholder for the actual event structure
-      content: formData.get("content"),
-      created_at: Math.floor(Date.now() / 1000),
-      pubkey: "your-public-key-here", // This may be dynamically set
-      // More fields as needed by Nostr
+  async prepareNostrEvent(formData) {
+    let pubkey = null;
+
+    // Attempt to get the public key from the Nostr extension
+    if (window.nostr && window.nostr.getPublicKey) {
+      try {
+        pubkey = await window.nostr.getPublicKey();
+      } catch (error) {
+        console.error("Failed to get public key from extension:", error);
+        throw new Error("Public key retrieval failed.");
+      }
     }
+
+    if (!pubkey) {
+      throw new Error("Nostr public key is unavailable.");
+    }
+
+    // Ensure content field is present
+    const content = formData.get("title");
+    if (!content) {
+      throw new Error("Bookmark title is required.");
+    }
+
+    // Prepare the event data and ensure it matches the expected structure
+    const nostrEvent = {
+      content: content,
+      created_at: Math.floor(Date.now() / 1000),
+      pubkey: pubkey,
+      kind: 30001, // Assuming kind is a required field for Nostr
+      tags: [] // If tags are involved, ensure proper structure
+      // Add more fields according to Nostr expectations if needed
+    };
+
+    // Additional validation if needed
+    if (!nostrEvent.kind || typeof nostrEvent.kind !== 'number') {
+      throw new Error("Event kind is required and must be a number.");
+    }
+
+    return nostrEvent;
   }
 
   async signEventWithExtension(event) {
-    // Interact with the browser extension to sign the event
     return new Promise((resolve, reject) => {
-      // Assuming the extension exposes a `nostr_signEvent` method
       if (window.nostr && window.nostr.signEvent) {
         window.nostr.signEvent(event).then(resolve).catch(reject)
       } else {
@@ -48,21 +76,22 @@ export default class extends Controller {
   }
 
   submitToRailsBackend(signedEvent) {
-    // Logic to send the signed event to the backend
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
     fetch(this.element.action, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'X-CSRF-Token': csrfToken
       },
-      body: JSON.stringify({ event: signedEvent }),
+      body: JSON.stringify({ signed_event: signedEvent }),
     }).then((response) => {
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
       return response.json()
     }).then((data) => {
-      // Handle successful response
       console.log('Event successfully published:', data)
     }).catch((error) => {
       this.displayError("Failed to communicate with server: " + error.message)
@@ -70,7 +99,6 @@ export default class extends Controller {
   }
 
   displayError(message) {
-    // Handle the error messaging, e.g., display to user
     alert(message)
   }
 }
