@@ -29,6 +29,7 @@ We've planned a phased implementation approach starting with basic Rails setup, 
 For the initial implementation, we're focusing on public bookmarks only, with potential for encrypted private bookmarks in a future version.
 
 You can run Rails commands with sh rails_cmd.sh ..., so sh rails_cmd.sh db:migrate.
+Make sure to create files, folders and edit them and run commands as needed. I want to you to write the code rather than telling me how to do it. I will review it at each step.
 
 
 We have a checklist for this project, organized into 10 phases:
