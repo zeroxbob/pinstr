@@ -1,1 +1,45 @@
-- We are working on a Nostr bookmarking application using Ruby on Rails in the /pinstr directory. You can run Rails commands with sh rails_cmd.sh ..., so sh rails_cmd.sh db:migrate.
+## Nostr Bookmark App Project Summary
+
+We're developing a bookmarking application similar to Pinboard but built on the Nostr protocol. This approach gives users full ownership of their data since bookmarks are stored as Nostr events (notes) on decentralized relays rather than in a centralized database.
+
+### Core Architecture
+- **Backend**: Ruby on Rails
+- **Frontend**: Rails views with minimal JavaScript (Hotwire Stimulus)
+- **Data Storage**: Bookmarks stored as Nostr events (kind 30001 parameterized replaceable events)
+- **Authentication**: Via Nostr browser extensions (nos2x, Alby) - no private keys handled by the app
+
+### Key Features
+1. **User Authentication** using Nostr extensions without handling private keys
+2. **Bookmark Storage** on the Nostr network with local Rails database references
+3. **Tagging System** for bookmark organization
+4. **Search Functionality** across bookmark fields with weighted results
+5. **Bookmarklet** for easy page bookmarking while browsing
+6. **Relay Management** to control which Nostr relays are used
+7. **Synchronization** between local database and Nostr network
+
+### Technical Approach
+The application uses a hybrid approach where:
+- JavaScript handles only the Nostr extension interaction (authentication and event signing)
+- Ruby on Rails manages all other aspects of the application (UI, business logic, relay communication)
+- Bookmarks are stored both locally (for performance) and on Nostr relays (for ownership)
+
+### Development Path
+We've planned a phased implementation approach starting with basic Rails setup, adding Nostr authentication, implementing bookmark creation, and progressively enhancing with features like tags, search, and improved UX.
+
+For the initial implementation, we're focusing on public bookmarks only, with potential for encrypted private bookmarks in a future version.
+
+You can run Rails commands with sh rails_cmd.sh ..., so sh rails_cmd.sh db:migrate.
+
+
+We have a checklist for this project, organized into 10 phases:
+
+Phase 1: Project Setup and Basic Rails Structure
+Phase 2: Authentication with Nostr Extensions
+Phase 3: Nostr Service Integration
+Phase 4: Basic Bookmark Creation
+Phase 5: Tag Management and User Interface
+Phase 6: Bookmarklet Implementation
+Phase 7: Search and Bookmark Management
+Phase 8: Relay Management and Synchronization
+Phase 9: User Experience and Polish
+Phase 10: Deployment and Documentation
