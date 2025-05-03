@@ -18,7 +18,7 @@ class BookmarksController < ApplicationController
     if @bookmark.save
       respond_to do |format|
         format.html { redirect_to bookmarks_path, notice: 'Bookmark was successfully created and signed event stored.' }
-        format.json { render json: { status: 'success' }, status: :ok }
+        format.json { render json: { status: 'success', redirect_url: bookmarks_path }, status: :ok }
       end
     else
       respond_to do |format|

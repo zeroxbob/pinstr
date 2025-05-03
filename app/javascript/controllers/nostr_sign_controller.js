@@ -84,16 +84,16 @@ export default class extends Controller {
         }
       }),
     }).then((response) => {
-      if (response.redirected) {
-        window.location.href = response.url;
-        return;
-      }
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
       return response.json();
     }).then((data) => {
-      console.log('Event successfully published:', data);
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        console.log('Event successfully published:', data);
+      }
     }).catch((error) => {
       this.displayError("Failed to communicate with server: " + error.message);
     });
