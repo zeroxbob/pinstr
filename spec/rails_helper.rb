@@ -37,15 +37,17 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 
-Capybara.default_max_wait_time = 15
-Capybara.default_driver = :playwright
-Capybara.javascript_driver = :playwright
 
-Capybara.register_driver(:playwright) do |app|
+Capybara.register_driver(:playwright_test) do |app|
   Capybara::Playwright::Driver.new(app,
                                    playwright_cli_executable_path: "./node_modules/.bin/playwright",
+                                   browser_type: :firefox,
                                    headless: false)
 end
+
+Capybara.default_max_wait_time = 15
+Capybara.default_driver = :playwright_test
+Capybara.javascript_driver = :playwright_test
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
@@ -81,6 +83,6 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
   config.before(:each, type: :system) do
-    driven_by :playwright
+    driven_by :playwright_test
   end
 end

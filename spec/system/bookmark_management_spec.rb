@@ -3,14 +3,16 @@ require 'rails_helper'
 RSpec.describe "Bookmark Management", type: :system do
   before do
     User.create!(username: "testuser", public_key: "testpubkey")
-    driven_by :playwright
   end
 
   it "creates a new bookmark successfully" do
+    puts 'hi from before visit'
     visit new_bookmark_path
+    puts 'hi from bookmark path'
+    puts Capybara.current_driver
 
     fill_in "Title", with: "Test Bookmark"
-    fill_in "Url", with: "http://example.com"
+    fill_in "Url", with: "https://www.greatblog.com/amazing_post"
     fill_in "Description", with: "A test description"
 
     # Simulate Nostr extension for signing
@@ -24,7 +26,7 @@ RSpec.describe "Bookmark Management", type: :system do
 
     click_button "Create Bookmark"
 
-    expect(Bookmark.last.url).to eq("https://example.com")
+    expect(Bookmark.last.url).to eq("https://www.greatblog.com/amazing_post")
     # expect(page).to have_content("Bookmark was successfully created")
     # expect(page).to have_current_path(bookmarks_path)
   end
