@@ -32,3 +32,63 @@ RSpec.describe Bookmark, type: :model do
     expect(bookmark).not_to be_valid
   end
 end
+
+# Tests for the event publication callback
+describe 'callbacks' do
+  let(:user) { User.create!(username: "testuser", public_key: "testpubkey") }
+  let(:valid_signed_event) do
+    {
+      id: 'test123',
+      pubkey: user.public_key,
+      content: 'Test Bookmark',
+      created_at: Time.now.to_i,
+      kind: 30001,
+      tags: []
+    }.to_json
+  end
+
+  it 'schedules event publication after create' do
+    bookmark = Bookmark.new(
+      user: user,
+      url: 'https://example.com',
+      title: 'Test',
+      event_id: 'test123',
+      signed_event_content: valid_signed_event
+    )
+
+    expect {
+      bookmark.save!
+    }.to have_enqueued_job(PublishNostrEventJob)
+  end
+
+  it 'does not schedule event publication if signed_event_content is blank' do
+    bookmark = Bookmark.new(
+      user: user,
+      url: 'https://example.com',
+      title: 'Test',
+      event_id: 'test123'
+    )
+
+    expect {
+      bookmark.save!
+    }.not_to have_enqueued_job(PublishNostrEventJob)
+  end
+
+  it 'handles JSON parsing errors gracefully' do
+    allow(Rails.logger).to receive(:error)
+
+    bookmark = Bookmark.new(
+      user: user,
+      url: 'https://example.com',
+      title: 'Test',
+      event_id: 'test123',
+      signed_event_content: 'invalid json'
+    )
+
+    expect {
+      bookmark.save!
+    }.not_to raise_error
+
+    expect(Rails.logger).to have_received(:error).with(/Failed to parse signed event content/)
+  end
+end
