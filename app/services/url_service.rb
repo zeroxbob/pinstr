@@ -10,19 +10,8 @@ class UrlService
   def self.normalize(url, strip_params: false, strip_www: true)
     return nil if url.blank?
     
-    # Special case for URLs with non-standard ports but no protocol
-    if url.match?(/\A[^:\/]+:\d+/) && !url.match?(/\A[a-z][a-z0-9+\-.]*:\/\//i)
-      # Handle special cases like "example.com:8080/path"
-      if url =~ /\A([^:]+):(\d+)(\/.*)?\z/
-        host = $1
-        port = $2
-        path = $3 || ''
-        url = "https://#{host}:#{port}#{path}"
-      end
-    elsif !url.match?(/\A[a-z][a-z0-9+\-.]*:/i)
-      # Add protocol if missing for other URLs
-      url = "https://#{url}"
-    end
+    # Handle non-standard port URL special case
+    url = prepare_url_with_port(url)
     
     begin
       uri = URI.parse(url)
@@ -34,7 +23,7 @@ class UrlService
       normalized = String.new.force_encoding('UTF-8')
       normalized << (uri.scheme || 'https') << '://'
       
-      # Strip www if requested
+      # Strip www if requested and apply lowercase to host
       host = uri.host.downcase
       host = host.sub(/\Awww\./i, '') if strip_www && host.start_with?('www.')
       normalized << host
@@ -44,12 +33,12 @@ class UrlService
         normalized << ":#{uri.port}"
       end
       
-      # Add path (remove trailing slash)
+      # Add path (remove trailing slash unless it's just /)
       path = uri.path
-      if path.blank? || path == '/'
-        # Don't add anything for the path
+      if path.blank? || path.empty? || path == '/'
+        # Nothing to add for empty path or just root
       else
-        # Remove trailing slash if present
+        # Remove trailing slash for non-root paths
         path = path.chomp('/')
         normalized << path
       end
@@ -65,6 +54,23 @@ class UrlService
       # If normalization fails, return the original URL
       url
     end
+  end
+  
+  # Canonicalizes a URL by normalizing and standardizing it
+  # - Converts http:// to https://
+  # - Always removes www prefix
+  # - Removes trailing slashes
+  # - Removes query parameters unless keep_params is true
+  def self.canonicalize(url, keep_params: false)
+    return nil if url.blank?
+    
+    # First normalize the URL
+    normalized = normalize(url, strip_params: !keep_params, strip_www: true)
+    
+    # Convert http to https
+    canonical = normalized.sub(/\Ahttp:/i, 'https:')
+    
+    canonical
   end
   
   # Validates if a string is a valid URL
@@ -85,23 +91,46 @@ class UrlService
     end
   end
   
-  # Determines if two URLs are equivalent after normalization
+  # Determines if two URLs are equivalent after canonicalization
   def self.equivalent?(url1, url2, strict: false)
     return false if url1.blank? || url2.blank?
     
-    # When strict is false, we strip params for comparison
-    # Remove trailing slashes from both URLs for comparison
-    norm1 = normalize(url1, strip_params: !strict, strip_www: true).downcase
-    norm2 = normalize(url2, strip_params: !strict, strip_www: true).downcase
+    # For URL equivalence, we compare after removing trailing slashes
+    # and standardizing the schemes
+    a = standardize_for_comparison(url1, keep_params: strict)
+    b = standardize_for_comparison(url2, keep_params: strict)
     
-    # Replace the scheme part for comparison to ignore protocol differences
-    norm1 = norm1.sub(/\Ahttps?:\/\//i, 'https://')
-    norm2 = norm2.sub(/\Ahttps?:\/\//i, 'https://')
+    a == b
+  end
+  
+  # Standardizes a URL for comparison
+  def self.standardize_for_comparison(url, keep_params: false)
+    # First normalize through our URL service
+    standard = canonicalize(url, keep_params: keep_params)
     
-    # Remove trailing slashes for comparison
-    norm1 = norm1.chomp('/')
-    norm2 = norm2.chomp('/')
+    # Remove any trailing slash explicitly for comparison
+    standard = standard.chomp('/')
     
-    norm1 == norm2
+    # Lowercase everything
+    standard.downcase
+  end
+  
+  # Helper method to prepare URLs with non-standard ports
+  def self.prepare_url_with_port(url)
+    # Handle URLs with non-standard ports but no protocol
+    # Example: example.com:8080/path
+    if url.match?(/\A([^:\/]+):(\d+)/) && !url.match?(/\A[a-z][a-z0-9+\-.]*:\/\//i)
+      if url =~ /\A([^:]+):(\d+)(\/.*)?\z/
+        host = $1
+        port = $2
+        path = $3 || ''
+        url = "https://#{host}:#{port}#{path}"
+      end
+    elsif !url.match?(/\A[a-z][a-z0-9+\-.]*:/i)
+      # Add protocol if missing for other URLs
+      url = "https://#{url}"
+    end
+    
+    url
   end
 end
