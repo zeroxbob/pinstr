@@ -3,16 +3,36 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   connect() {
     this.element.addEventListener('submit', this.handleSubmit.bind(this))
+    console.log("Nostr sign controller connected - NIP-B0 mode")
   }
 
   async handleSubmit(event) {
     event.preventDefault()
 
     try {
+      // Validate form first
       const formData = new FormData(this.element);
+      const title = formData.get("bookmark[title]");
+      const url = formData.get("bookmark[url]");
+      
+      if (!title || !url) {
+        this.displayError("Title and URL are required fields");
+        return;
+      }
+      
+      if (!url.match(/^https?:\/\//)) {
+        // Add https:// if missing
+        const urlField = this.element.querySelector('input[name="bookmark[url]"]');
+        urlField.value = "https://" + url;
+        formData.set("bookmark[url]", "https://" + url);
+      }
+
+      // Prepare and sign the event
       const nostrEvent = await this.prepareNostrEvent(formData);
+      console.log("Prepared NIP-B0 event:", nostrEvent);
 
       const signedEvent = await this.signEventWithExtension(nostrEvent);
+      console.log("Signed NIP-B0 event:", signedEvent);
 
       if (signedEvent) {
         this.submitToRailsBackend(signedEvent, formData);
@@ -20,6 +40,7 @@ export default class extends Controller {
         this.displayError("Signing failed: No signature returned.");
       }
     } catch (error) {
+      console.error("Error in form submission:", error);
       this.displayError("An error occurred: " + error.message);
     }
   }
@@ -117,7 +138,15 @@ export default class extends Controller {
   async signEventWithExtension(event) {
     return new Promise((resolve, reject) => {
       if (window.nostr && window.nostr.signEvent) {
-        window.nostr.signEvent(event).then(resolve).catch(reject);
+        window.nostr.signEvent(event)
+          .then(signedEvent => {
+            console.log("NIP-B0 event signed successfully");
+            resolve(signedEvent);
+          })
+          .catch(error => {
+            console.error("Signing error:", error);
+            reject(error);
+          });
       } else {
         reject(new Error("Nostr extension not available."));
       }
@@ -127,6 +156,8 @@ export default class extends Controller {
   submitToRailsBackend(signedEvent, formData) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+    console.log("Submitting NIP-B0 event to server");
+    
     fetch(this.element.action, {
       method: 'POST',
       headers: {
@@ -144,21 +175,26 @@ export default class extends Controller {
       }),
     }).then((response) => {
       if (!response.ok) {
-        throw new Error('Network response was not ok.');
+        return response.json().then(data => {
+          throw new Error(data.errors ? data.errors.join(', ') : 'Network response was not ok');
+        });
       }
       return response.json();
     }).then((data) => {
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
       } else {
-        console.log('Event successfully published:', data);
+        console.log('NIP-B0 event successfully published:', data);
+        alert('Bookmark successfully created!');
       }
     }).catch((error) => {
+      console.error("Server error:", error);
       this.displayError("Failed to communicate with server: " + error.message);
     });
   }
 
   displayError(message) {
+    console.error(message);
     alert(message);
   }
 }

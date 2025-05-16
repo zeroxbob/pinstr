@@ -13,21 +13,22 @@
 
   <div>
     <%= form.label :title %><br />
-    <%= form.text_field :title %>
+    <%= form.text_field :title, required: true %>
   </div>
 
   <div>
     <%= form.label :url %><br />
-    <%= form.text_field :url %>
+    <%= form.text_field :url, required: true %>
   </div>
 
   <div>
     <%= form.label :description %><br />
     <%= form.text_area :description %>
+    <small class="form-text text-muted">You can add hashtags using #tag format to categorize this bookmark.</small>
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.submit "Create NIP-B0 Web Bookmark" %>
   </div>
 <% end %>
 
