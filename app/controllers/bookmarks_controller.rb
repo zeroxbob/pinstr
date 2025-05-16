@@ -13,43 +13,71 @@ class BookmarksController < ApplicationController
   end
 
   def create
-    signed_event = params[:signed_event]
-
-    # Log the signed event for debugging
-    Rails.logger.info("Received signed event: #{signed_event.inspect}")
+    # Get the signed event from params and convert to hash if it's ActionController::Parameters
+    signed_event_params = params[:signed_event]
+    
+    # Enhanced debugging for the signed event
+    Rails.logger.info("Received signed event: #{signed_event_params.inspect}")
+    Rails.logger.info("Signed event class: #{signed_event_params.class}")
+    
+    # Convert ActionController::Parameters to a regular hash with symbolized keys
+    signed_event = if signed_event_params.is_a?(ActionController::Parameters)
+      signed_event_params.to_unsafe_h.symbolize_keys
+    else
+      signed_event_params
+    end
+    
+    Rails.logger.info("Converted signed event: #{signed_event.inspect}")
+    Rails.logger.info("Converted event class: #{signed_event.class}")
+    
+    if signed_event.is_a?(Hash)
+      Rails.logger.info("Event kind: #{signed_event[:kind].inspect} (#{signed_event[:kind].class if signed_event[:kind]})")
+      
+      # Ensure kind is an integer
+      if signed_event[:kind].is_a?(String) && signed_event[:kind].to_i == 39701
+        Rails.logger.info("Converting kind from string to integer")
+        signed_event[:kind] = 39701
+      end
+    end
 
     # Add validation for NIP-B0 format
-    unless signed_event.is_a?(Hash) && (signed_event["kind"] == 39701 || signed_event[:kind] == 39701)
-      Rails.logger.error("Invalid event format: Not a NIP-B0 event (kind 39701)")
+    unless signed_event.is_a?(Hash) && signed_event[:kind] == 39701
+      error_msg = "Invalid event format: Not a NIP-B0 event (kind 39701)"
+      Rails.logger.error(error_msg)
+      Rails.logger.error("Actual kind: #{signed_event.is_a?(Hash) ? signed_event[:kind].inspect : 'N/A'}")
+      
       respond_to do |format|
-        format.html { render :new, alert: 'Invalid event format: Not a NIP-B0 event (kind 39701)' }
-        format.json { render json: { errors: ['Invalid event format: Not a NIP-B0 event (kind 39701)'] }, status: :unprocessable_entity }
+        format.html { render :new, alert: error_msg }
+        format.json { render json: { errors: [error_msg] }, status: :unprocessable_entity }
       end
       return
     end
 
     # Find the title from NIP-B0 tags
     event_title = nil
-    if signed_event["tags"].is_a?(Array) || signed_event[:tags].is_a?(Array)
-      tags = signed_event["tags"] || signed_event[:tags]
+    if signed_event[:tags].is_a?(Array)
+      tags = signed_event[:tags]
       tags.each do |tag|
         if tag.is_a?(Array) && tag[0] == "title" && tag[1].present?
           event_title = tag[1]
+          Rails.logger.info("Found title tag: #{event_title}")
           break
         end
       end
     end
 
     # Extract description from content field
-    event_description = signed_event["content"] || signed_event[:content] if signed_event["content"].present? || signed_event[:content].present?
+    event_description = signed_event[:content] if signed_event[:content].present?
+    Rails.logger.info("Extracted description: #{event_description}")
 
     # Find d-tag for the URL (this is the NIP-B0 identifier)
     d_tag = nil
-    if signed_event["tags"].is_a?(Array) || signed_event[:tags].is_a?(Array)
-      tags = signed_event["tags"] || signed_event[:tags]
+    if signed_event[:tags].is_a?(Array)
+      tags = signed_event[:tags]
       tags.each do |tag|
         if tag.is_a?(Array) && tag[0] == "d" && tag[1].present?
           d_tag = tag[1]
+          Rails.logger.info("Found d tag: #{d_tag}")
           break
         end
       end
@@ -57,13 +85,18 @@ class BookmarksController < ApplicationController
 
     # Construct full URL from d-tag
     url = d_tag.present? ? "https://#{d_tag}" : params[:bookmark][:url]
+    Rails.logger.info("Constructed URL: #{url}")
 
-    # Use the event ID or a fallback
-    event_id = signed_event["id"] || signed_event[:id]
+    # Use the event ID
+    event_id = signed_event[:id]
+    Rails.logger.info("Event ID: #{event_id}")
     
     # Get user ID from signed event pubkey or current user
-    pubkey = signed_event["pubkey"] || signed_event[:pubkey]
-    user_id = User.find_by(public_key: pubkey)&.id || current_user&.id
+    pubkey = signed_event[:pubkey]
+    user = User.find_by(public_key: pubkey)
+    user_id = user&.id || current_user&.id
+    
+    Rails.logger.info("Using pubkey: #{pubkey}, matched to user_id: #{user_id}")
     
     # Build the bookmark
     @bookmark = Bookmark.new(
@@ -73,10 +106,11 @@ class BookmarksController < ApplicationController
       event_id: event_id,
       user_id: user_id,
       signed_event_content: signed_event.to_json,
-      signed_event_sig: signed_event["sig"] || signed_event[:sig]
+      signed_event_sig: signed_event[:sig]
     )
 
     if @bookmark.save
+      Rails.logger.info("Bookmark saved successfully with ID: #{@bookmark.id}")
       respond_to do |format|
         format.html { redirect_to bookmarks_path, notice: 'Bookmark was successfully created and signed event stored.' }
         format.json { render json: { status: 'success', redirect_url: bookmarks_path }, status: :ok }
