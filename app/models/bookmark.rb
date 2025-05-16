@@ -33,28 +33,47 @@ class Bookmark < ApplicationRecord
   
   # URL related methods
   def self.find_by_url(url)
+    return nil if url.blank?
     normalized_url = UrlService.normalize(url)
     
     # Try to find an exact match first
     bookmark = find_by(url: normalized_url)
     return bookmark if bookmark
     
-    # If no exact match, find a bookmark that is equivalent
+    # If no exact match, find a bookmark that is equivalent by comparing
+    # normalized URLs with standardized schemes and no trailing slashes
     all.find do |b|
-      UrlService.equivalent?(b.url, normalized_url)
+      normalize_for_comparison(b.url) == normalize_for_comparison(url)
     end
   end
   
   def self.user_has_bookmarked?(user, url)
-    normalized_url = UrlService.normalize(url)
+    return false unless user.present? && url.present?
+    
+    normalized_url = normalize_for_comparison(url)
     
     # Try to find an exact match first
-    return true if user.bookmarks.exists?(url: normalized_url)
-    
-    # If no exact match, check equivalence
-    user.bookmarks.any? do |bookmark|
-      UrlService.equivalent?(bookmark.url, normalized_url)
+    user.bookmarks.each do |bookmark|
+      normalized_bookmark_url = normalize_for_comparison(bookmark.url)
+      return true if normalized_bookmark_url == normalized_url
     end
+    
+    false
+  end
+  
+  # Helper method to normalize URLs for comparison
+  def self.normalize_for_comparison(url)
+    return "" if url.blank?
+    
+    # First normalize through UrlService
+    normalized = UrlService.normalize(url)
+    
+    # Then standardize the scheme to https and remove trailing slashes
+    normalized = normalized.sub(/\Ahttp:/i, 'https:')
+    normalized = normalized.sub(/\Ahttps:\/\/www\./i, 'https://')
+    normalized = normalized.chomp('/')
+    
+    normalized.downcase
   end
   
   private
