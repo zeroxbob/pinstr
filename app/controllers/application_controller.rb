@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-    helper_method :current_user
+  helper_method :current_user
 
   def current_user
     return if session[:user_id].blank?
@@ -8,9 +8,15 @@ class ApplicationController < ActionController::Base
 
   def authenticate_user!
     unless current_user
-      flash[:alert] = 'You must be logged in'
-      redirect_to root_path
+      respond_to do |format|
+        format.html {
+          flash[:alert] = 'You must be logged in'
+          redirect_to new_session_path
+        }
+        format.json {
+          render json: { error: 'Authentication required' }, status: :unauthorized
+        }
+      end
     end
   end
-
 end

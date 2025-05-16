@@ -23,7 +23,24 @@
   </head>
 
   <body>
-    <% flash.each do |key, message| %>
+
+  <header style="background-color: #f8f9fa; padding: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #ddd;">
+    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+      <h1 style="margin: 0; font-size: 1.5rem;"><a href="/" style="text-decoration: none; color: #333;">Pinstr</a></h1>
+      <div style="display: flex; gap: 1rem;">
+        <% if current_user %>
+          <a href="/bookmarks" style="text-decoration: none; color: #6a5acd;">My Bookmarks</a>
+          <a href="/bookmarks/new" style="text-decoration: none; color: #6a5acd;">New Bookmark</a>
+          <span data-controller="nostr-auth">
+            <button data-nostr-auth-target="logoutButton" data-action="click->nostr-auth#logout" style="background: none; border: none; color: #6a5acd; cursor: pointer;">Logout</button>
+          </span>
+        <% else %>
+          <a href="/sessions/new" style="text-decoration: none; color: #6a5acd;">Login</a>
+        <% end %>
+      </div>
+    </div>
+  </header>
+        <% flash.each do |key, message| %>
       <div class="flash <%= key %>"><%= message %></div>
     <% end %>
     <%= yield %>
