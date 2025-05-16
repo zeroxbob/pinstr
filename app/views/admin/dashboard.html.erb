@@ -1,0 +1,51 @@
+<h1>Bookmark Event Types</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>URL</th>
+      <th>Event Kind</th>
+      <th>Created At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @bookmarks.each do |bookmark| %>
+      <tr>
+        <td><%= bookmark.id %></td>
+        <td><%= bookmark.title %></td>
+        <td><%= link_to bookmark.url, bookmark.url %></td>
+        <td>
+          <% if bookmark.signed_event_content.present? %>
+            <% begin %>
+              <% event = JSON.parse(bookmark.signed_event_content) %>
+              <% kind = event['kind'] || event[:kind] %>
+              <% if kind == 39701 %>
+                <span class="badge bg-success">NIP-B0 (39701)</span>
+              <% elsif kind == 30001 %>
+                <span class="badge bg-warning">Legacy (30001)</span>
+              <% else %>
+                <span class="badge bg-secondary">Other: <%= kind %></span>
+              <% end %>
+            <% rescue %>
+              <span class="badge bg-danger">Invalid</span>
+            <% end %>
+          <% else %>
+            <span class="badge bg-secondary">No event</span>
+          <% end %>
+        </td>
+        <td><%= bookmark.created_at %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p>
+  <strong>Stats:</strong>
+  <ul>
+    <li>Total bookmarks: <%= @bookmarks.count %></li>
+    <li>NIP-B0 bookmarks: <%= @nipb0_count %></li>
+    <li>Legacy bookmarks: <%= @legacy_count %></li>
+  </ul>
+</p>

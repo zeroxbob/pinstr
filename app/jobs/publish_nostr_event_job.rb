@@ -4,7 +4,10 @@ class PublishNostrEventJob < ApplicationJob
   retry_on StandardError, attempts: 3, wait: :exponentially_longer
   
   def perform(event_data, options = {})
-    event_id = event_data.is_a?(Hash) ? event_data["id"] : JSON.parse(event_data)["id"]
+    # Ensure we have event data as a hash
+    event_data = JSON.parse(event_data) if event_data.is_a?(String)
+    event_id = event_data["id"] || event_data[:id]
+    
     Rails.logger.info("Publishing Nostr event: #{event_id}")
     
     # Find the bookmark for this event
@@ -13,6 +16,14 @@ class PublishNostrEventJob < ApplicationJob
     unless bookmark
       Rails.logger.error("Could not find bookmark with event_id: #{event_id}")
       return
+    end
+    
+    # Check if this is a NIP-B0 web bookmark event (kind 39701)
+    is_nipb0 = (event_data["kind"] == 39701 || event_data[:kind] == 39701)
+    if is_nipb0
+      Rails.logger.info("Publishing as NIP-B0 web bookmark (kind 39701)")
+    else
+      Rails.logger.info("Publishing as legacy bookmark (kind 30001)")
     end
     
     # Create the service instance

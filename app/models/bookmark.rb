@@ -14,6 +14,10 @@ class Bookmark < ApplicationRecord
   
   after_create :schedule_event_publication
   
+  # Constants for Nostr event kinds
+  NOSTR_KIND_BOOKMARK = 39701  # NIP-B0 web bookmark
+  NOSTR_KIND_LEGACY = 30001    # Previous bookmark kind
+  
   # Publication related methods
   def record_publication(relay, success, error_message = nil)
     Publication.record_publication(self, relay, success, error_message)
@@ -64,6 +68,31 @@ class Bookmark < ApplicationRecord
     user.bookmarks.any? do |bookmark|
       UrlService.equivalent?(bookmark.url, canonical_url)
     end
+  end
+  
+  # Extract d-tag (bookmark identifier) from URL according to NIP-B0
+  def d_tag
+    return nil if url.blank?
+    
+    # Remove scheme
+    d_tag = url.sub(/\Ahttps?:\/\//i, '')
+    
+    # Remove query string and hash
+    d_tag = d_tag.split('?')[0].split('#')[0]
+    
+    d_tag
+  end
+  
+  # Extract hashtags from description
+  def hashtags
+    return [] if description.blank?
+    
+    tags = []
+    description.scan(/(?:\s|^)#([\w\d]+)/) do |match|
+      tags << match[0] if match[0].present?
+    end
+    
+    tags.uniq
   end
   
   private

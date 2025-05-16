@@ -40,19 +40,78 @@ export default class extends Controller {
       throw new Error("Nostr public key is unavailable.");
     }
     
-    const content = formData.get("bookmark[title]");
+    const title = formData.get("bookmark[title]");
+    const url = formData.get("bookmark[url]");
+    const description = formData.get("bookmark[description]") || '';
 
-    if (!content) {
+    if (!title) {
       throw new Error("Bookmark title is required.");
     }
 
+    if (!url) {
+      throw new Error("Bookmark URL is required.");
+    }
+
+    // Create NIP-B0 compliant event (kind 39701)
+    const urlWithoutScheme = this.extractUrlDTag(url);
+    const now = Math.floor(Date.now() / 1000);
+    
+    // Build tags array according to NIP-B0
+    const tags = [
+      ["d", urlWithoutScheme], // Required d tag
+      ["published_at", now.toString()], // Optional published_at tag
+      ["title", title] // Optional title tag
+    ];
+    
+    // Add hashtags if description contains any (basic implementation)
+    const hashtags = this.extractHashtags(description);
+    hashtags.forEach(tag => {
+      tags.push(["t", tag]);
+    });
+
     return {
-      content: content,
-      created_at: Math.floor(Date.now() / 1000),
+      content: description,
+      created_at: now,
       pubkey: pubkey,
-      kind: 30001,
-      tags: [] 
+      kind: 39701, // NIP-B0 kind for web bookmarks
+      tags: tags
     };
+  }
+
+  // Extract the d-tag value from a URL according to NIP-B0
+  extractUrlDTag(url) {
+    try {
+      // Parse the URL
+      const parsedUrl = new URL(url);
+      
+      // Remove scheme (http:// or https://)
+      let dTag = url.replace(/^https?:\/\//, '');
+      
+      // Remove querystring and hash unless explicitly needed
+      dTag = dTag.split('?')[0].split('#')[0];
+      
+      return dTag;
+    } catch(e) {
+      // If parsing fails, just return the URL as is with scheme removed
+      return url.replace(/^https?:\/\//, '');
+    }
+  }
+  
+  // Simple hashtag extractor from content
+  extractHashtags(content) {
+    if (!content) return [];
+    
+    const hashtags = [];
+    const matches = content.match(/(?:\s|^)#([\w\d]+)/g) || [];
+    
+    matches.forEach(match => {
+      const tag = match.trim().substring(1); // Remove # symbol
+      if (tag.length > 0) {
+        hashtags.push(tag);
+      }
+    });
+    
+    return hashtags;
   }
 
   async signEventWithExtension(event) {
