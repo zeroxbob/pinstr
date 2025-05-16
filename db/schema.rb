@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_16_150026) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_16_211956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_16_150026) do
     t.text "signed_event_content"
     t.string "signed_event_sig"
     t.index ["event_id"], name: "index_bookmarks_on_event_id", unique: true
+    t.index ["url", "user_id"], name: "index_bookmarks_on_url_and_user_id"
+    t.index ["url"], name: "index_bookmarks_on_url"
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
 
