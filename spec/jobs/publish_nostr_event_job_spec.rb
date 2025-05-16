@@ -10,7 +10,8 @@ RSpec.describe PublishNostrEventJob, type: :job do
   
   let(:user) { User.create!(username: "testuser", public_key: "testpubkey") }
   let(:bookmark) { Bookmark.create!(user: user, url: "https://example.com", title: "Test", event_id: "test123") }
-  let(:event_data) { { 'id' => 'test123', 'content' => 'Test content' } }
+  # Update event data to include kind 39701 for NIP-B0
+  let(:event_data) { { 'id' => 'test123', 'content' => 'Test content', 'kind' => 39701 } }
   let(:mock_service) { instance_double(NostrService) }
   
   before do
@@ -35,6 +36,16 @@ RSpec.describe PublishNostrEventJob, type: :job do
       expect(mock_service).not_to receive(:publish_event)
       
       PublishNostrEventJob.new.perform(event_data)
+    end
+    
+    it 'logs an error and returns if the event is not a NIP-B0 event' do
+      # Create a non-NIP-B0 event
+      invalid_event = { 'id' => 'test123', 'content' => 'Test content', 'kind' => 30001 }
+      
+      expect(Rails.logger).to receive(:error).with("Event is not a NIP-B0 web bookmark (kind 39701)")
+      expect(mock_service).not_to receive(:publish_event)
+      
+      PublishNostrEventJob.new.perform(invalid_event)
     end
     
     it 'closes connections even if there is an error' do

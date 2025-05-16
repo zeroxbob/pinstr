@@ -63,7 +63,7 @@ export default class extends Controller {
       ["title", title] // Optional title tag
     ];
     
-    // Add hashtags if description contains any (basic implementation)
+    // Add hashtags if description contains any
     const hashtags = this.extractHashtags(description);
     hashtags.forEach(tag => {
       tags.push(["t", tag]);

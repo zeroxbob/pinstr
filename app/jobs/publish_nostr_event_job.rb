@@ -18,12 +18,10 @@ class PublishNostrEventJob < ApplicationJob
       return
     end
     
-    # Check if this is a NIP-B0 web bookmark event (kind 39701)
-    is_nipb0 = (event_data["kind"] == 39701 || event_data[:kind] == 39701)
-    if is_nipb0
-      Rails.logger.info("Publishing as NIP-B0 web bookmark (kind 39701)")
-    else
-      Rails.logger.info("Publishing as legacy bookmark (kind 30001)")
+    # Verify this is a NIP-B0 web bookmark event (kind 39701)
+    unless event_data["kind"] == 39701 || event_data[:kind] == 39701
+      Rails.logger.error("Event is not a NIP-B0 web bookmark (kind 39701)")
+      return
     end
     
     # Create the service instance

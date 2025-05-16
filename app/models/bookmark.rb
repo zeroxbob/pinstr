@@ -14,9 +14,8 @@ class Bookmark < ApplicationRecord
   
   after_create :schedule_event_publication
   
-  # Constants for Nostr event kinds
-  NOSTR_KIND_BOOKMARK = 39701  # NIP-B0 web bookmark
-  NOSTR_KIND_LEGACY = 30001    # Previous bookmark kind
+  # NIP-B0 web bookmark kind
+  NOSTR_KIND_BOOKMARK = 39701
   
   # Publication related methods
   def record_publication(relay, success, error_message = nil)
