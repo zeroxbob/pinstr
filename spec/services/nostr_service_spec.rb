@@ -1,9 +1,17 @@
 require 'rails_helper'
 
-RSpec.describe NostrService, type: :service do
+RSpec.describe NostrService do
   let(:service) { NostrService.new(['wss://test.relay']) }
   let(:mock_client) { instance_double(Nostr::Client) }
   let(:mock_response) { double('Response', success: true, message: 'OK') }
+  let(:bookmark) { instance_double(Bookmark) }
+  let(:relay) { instance_double(Relay, url: 'wss://test.relay') }
+  
+  before do
+    allow(Relay).to receive(:find_or_create_by).and_return(relay)
+    allow(bookmark).to receive(:record_publication)
+    allow(relay).to receive(:mark_as_connected)
+  end
   
   describe '#connect_to_relay' do
     before do
@@ -49,25 +57,29 @@ RSpec.describe NostrService, type: :service do
       allow(mock_client).to receive(:publish_and_wait).and_return(mock_response)
     end
     
-    it 'publishes event to specified relays' do
+    it 'publishes event to relays and records the publication' do
       expect(mock_client).to receive(:publish_and_wait)
+      expect(bookmark).to receive(:record_publication).with(relay, true, nil)
       
-      results = service.publish_event(event_data)
+      results = service.publish_event(event_data, bookmark)
       expect(results['wss://test.relay'][:success]).to be true
     end
     
-    it 'handles connection failures' do
+    it 'handles connection failures and records the failure' do
       allow(service).to receive(:connect_to_relay).and_return(nil)
+      expect(bookmark).to receive(:record_publication).with(relay, false, "Could not connect to relay")
       
-      results = service.publish_event(event_data)
+      results = service.publish_event(event_data, bookmark)
       expect(results['wss://test.relay'][:success]).to be false
       expect(results['wss://test.relay'][:error]).to eq('Could not connect to relay')
     end
     
-    it 'handles publishing errors' do
-      allow(mock_client).to receive(:publish_and_wait).and_raise(StandardError.new('Publish error'))
+    it 'handles publishing errors and records the failure' do
+      error = StandardError.new('Publish error')
+      allow(mock_client).to receive(:publish_and_wait).and_raise(error)
+      expect(bookmark).to receive(:record_publication).with(relay, false, 'Publish error')
       
-      results = service.publish_event(event_data)
+      results = service.publish_event(event_data, bookmark)
       expect(results['wss://test.relay'][:success]).to be false
       expect(results['wss://test.relay'][:error]).to eq('Publish error')
     end

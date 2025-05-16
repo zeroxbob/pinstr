@@ -19,11 +19,15 @@ class NostrService
     return @connections[relay_url] if @connections[relay_url]
     
     begin
+      # Find or create the Relay record
+      relay = Relay.find_or_create_by(url: relay_url)
+      
       client = Nostr::Client.new(relay: relay_url)
       
       # Set up event handlers
       client.on :connect do
         logger.info("Connected to Nostr relay: #{relay_url}")
+        relay.mark_as_connected
       end
       
       client.on :error do |error|
@@ -46,21 +50,29 @@ class NostrService
     end
   end
   
-  def publish_event(event_data, specific_relays = nil)
+  # This method now requires a bookmark parameter to record publications
+  def publish_event(event_data, bookmark, specific_relays = nil)
     relays_to_use = specific_relays || @relay_urls
     results = {}
     
     relays_to_use.each do |relay_url|
-      results[relay_url] = publish_to_relay(relay_url, event_data)
+      results[relay_url] = publish_to_relay(relay_url, event_data, bookmark)
     end
     
     results
   end
   
-  def publish_to_relay(relay_url, event_data)
+  def publish_to_relay(relay_url, event_data, bookmark)
     client = @connections[relay_url] || connect_to_relay(relay_url)
     
-    return { success: false, error: "Could not connect to relay" } unless client
+    # Find or create the Relay record
+    relay = Relay.find_or_create_by(url: relay_url)
+    
+    if !client
+      # Record the publication failure
+      bookmark.record_publication(relay, false, "Could not connect to relay")
+      return { success: false, error: "Could not connect to relay" }
+    end
     
     begin
       # Convert the event data hash to a proper Nostr::Event if needed
@@ -91,11 +103,19 @@ class NostrService
       # Send the event synchronously
       response = client.publish_and_wait(event)
       
-      # Check if the event was accepted
+      # Record the publication result
+      bookmark.record_publication(relay, response.success, response.success ? nil : response.message)
+      
+      # Return the result
       { success: response.success, message: response.message }
     rescue => e
+      error_message = e.message
       handle_error(e, "Failed to publish event to relay #{relay_url}")
-      { success: false, error: e.message }
+      
+      # Record the publication failure
+      bookmark.record_publication(relay, false, error_message)
+      
+      { success: false, error: error_message }
     end
   end
   

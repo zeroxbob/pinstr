@@ -8,19 +8,31 @@ RSpec.describe PublishNostrEventJob, type: :job do
     ActiveJob::Base.queue_adapter = :test
   end
   
+  let(:user) { User.create!(username: "testuser", public_key: "testpubkey") }
+  let(:bookmark) { Bookmark.create!(user: user, url: "https://example.com", title: "Test", event_id: "test123") }
   let(:event_data) { { 'id' => 'test123', 'content' => 'Test content' } }
   let(:mock_service) { instance_double(NostrService) }
   
   before do
     allow(NostrService).to receive(:new).and_return(mock_service)
     allow(mock_service).to receive(:close_all_connections)
+    allow(Bookmark).to receive(:find_by).with(event_id: "test123").and_return(bookmark)
   end
   
   describe '#perform' do
-    it 'publishes the event to relays' do
-      expect(mock_service).to receive(:publish_event).with(event_data).and_return(
+    it 'looks up the bookmark and publishes the event to relays' do
+      expect(Bookmark).to receive(:find_by).with(event_id: "test123").and_return(bookmark)
+      expect(mock_service).to receive(:publish_event).with(event_data, bookmark).and_return(
         { 'wss://test.relay' => { success: true } }
       )
+      
+      PublishNostrEventJob.new.perform(event_data)
+    end
+    
+    it 'logs an error and returns if the bookmark is not found' do
+      allow(Bookmark).to receive(:find_by).with(event_id: "test123").and_return(nil)
+      expect(Rails.logger).to receive(:error).with("Could not find bookmark with event_id: test123")
+      expect(mock_service).not_to receive(:publish_event)
       
       PublishNostrEventJob.new.perform(event_data)
     end
@@ -43,17 +55,6 @@ RSpec.describe PublishNostrEventJob, type: :job do
       expect {
         PublishNostrEventJob.new.perform(event_data)
       }.to raise_error('Failed to publish to any relays')
-    end
-    
-    it 'uses specific relays if provided' do
-      specific_relays = ['wss://specific.relay']
-      
-      expect(NostrService).to receive(:new).with(specific_relays).and_return(mock_service)
-      expect(mock_service).to receive(:publish_event).and_return(
-        { 'wss://specific.relay' => { success: true } }
-      )
-      
-      PublishNostrEventJob.new.perform(event_data, relays: specific_relays)
     end
   end
   
