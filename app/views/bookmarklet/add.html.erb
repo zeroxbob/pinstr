@@ -1,0 +1,38 @@
+<h1>Save Bookmark to Pinstr</h1>
+
+<%= form_with(model: @bookmark, url: create_from_bookmarklet_path, data: { controller: "bookmarklet-sign" }) do |form| %>
+  <% if @bookmark.errors.any? %>
+    <div class="alert">
+      <h2><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h2>
+      <ul>
+        <% @bookmark.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :title %>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :url %>
+    <%= form.text_field :url, required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :description %>
+    <%= form.text_area :description %>
+  </div>
+
+  <% if @in_popup %>
+    <%= hidden_field_tag :popup, "true" %>
+  <% end %>
+
+  <div class="actions">
+    <button type="button" class="btn btn-secondary" onclick="window.close()">Cancel</button>
+    <%= form.submit "Save Bookmark", class: "btn btn-primary" %>
+  </div>
+<% end %>

@@ -11,8 +11,13 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-    post "/auth", to: "sessions#create"
+  post "/auth", to: "sessions#create"
   delete "/auth", to: "sessions#destroy"
+
+  # Bookmarklet routes
+  get "/bookmarklet", to: "bookmarklet#add", as: :bookmarklet
+  post "/bookmarklet", to: "bookmarklet#create", as: :create_from_bookmarklet
+  get "/bookmarklet/instructions", to: "bookmarklet#instructions", as: :bookmarklet_instructions
 
   resources :sessions
   resources :bookmarks

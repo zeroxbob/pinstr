@@ -1,2 +1,48 @@
-<h1>Home#index</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1>Welcome to Pinstr</h1>
+      <p>Pinstr is a bookmark manager that uses Nostr to store and sync your bookmarks.</p>
+      
+      <% if current_user %>
+        <p>You are logged in as <%= current_user.username %>.</p>
+        <p><%= link_to "View your bookmarks", bookmarks_path, class: "btn btn-primary" %></p>
+      <% else %>
+        <p>Please log in with Nostr to manage your bookmarks.</p>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>Bookmarklet</h2>
+      <p>Drag this bookmarklet to your bookmarks bar to quickly save pages to Pinstr:</p>
+      
+      <div class="bookmarklet-container">
+        <a href="javascript:<%= raw(bookmarklet_code) %>" class="bookmarklet-link">
+          Save to Pinstr
+        </a>
+        <p class="mt-2">
+          <small>(Drag this link to your bookmarks bar)</small>
+        </p>
+      </div>
+      
+      <div class="bookmarklet-instructions">
+        <h3>How to use:</h3>
+        <ol>
+          <li>Drag the "Save to Pinstr" link above to your browser's bookmarks bar.</li>
+          <li>When you're on a webpage you want to save, click the bookmarklet in your bookmarks bar.</li>
+          <li>A popup window will open with the page details pre-filled.</li>
+          <li>Add or edit any details, then click "Save Bookmark".</li>
+          <li>Your bookmark will be saved to your Pinstr account and published to Nostr.</li>
+        </ol>
+        
+        <p>
+          <a href="<%= bookmarklet_instructions_path %>" class="btn btn-secondary">
+            Detailed Instructions
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
