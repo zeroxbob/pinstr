@@ -45,4 +45,83 @@
       </div>
     </div>
   </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>Nostr Integration</h2>
+      <p>For full functionality, you'll need a Nostr browser extension. We recommend:</p>
+      
+      <div class="nostr-extensions">
+        <div class="extension-card">
+          <h3>Alby</h3>
+          <p>A Bitcoin and Nostr extension with wallet capabilities</p>
+          <a href="https://getalby.com/" target="_blank" class="btn btn-sm btn-info">Get Alby</a>
+        </div>
+        
+        <div class="extension-card">
+          <h3>nos2x</h3>
+          <p>A lightweight Nostr signer extension</p>
+          <a href="https://github.com/fiatjaf/nos2x" target="_blank" class="btn btn-sm btn-info">Get nos2x</a>
+        </div>
+        
+        <div class="extension-card">
+          <h3>Nostr Commander</h3>
+          <p>For iOS and macOS users</p>
+          <a href="https://github.com/BlockchainCommons/nostr-commander-app" target="_blank" class="btn btn-sm btn-info">Learn More</a>
+        </div>
+      </div>
+      
+      <p class="mt-3 text-center">
+        <a href="<%= debug_bookmarklet_path %>" class="btn btn-outline-secondary">Test Your Nostr Extension</a>
+      </p>
+    </div>
+  </div>
 </div>
+
+<style>
+  .nostr-extensions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .extension-card {
+    flex: 1;
+    min-width: 200px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #f9f9f9;
+  }
+  
+  .extension-card h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-info {
+    background-color: #0dcaf0;
+    color: #000;
+  }
+  
+  .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+    background-color: transparent;
+  }
+  
+  .btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+</style>

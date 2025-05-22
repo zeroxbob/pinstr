@@ -49,6 +49,26 @@
   
   <div class="row mb-4">
     <div class="col-12">
+      <h2>Nostr Integration</h2>
+      <div class="bookmarklet-instructions">
+        <p>The Pinstr bookmarklet works best with a Nostr browser extension installed:</p>
+        <ul>
+          <li><a href="https://getalby.com/" target="_blank">Alby</a> - Browser extension that includes Nostr capabilities</li>
+          <li><a href="https://github.com/fiatjaf/nos2x" target="_blank">nos2x</a> - Dedicated Nostr signer extension</li>
+          <li><a href="https://github.com/BlockchainCommons/nostr-commander-app" target="_blank">Nostr Commander</a> - For iOS/macOS users</li>
+        </ul>
+        
+        <p>These extensions allow the bookmarklet to create a properly signed Nostr event (NIP-B0) for your bookmark, which can then be published to Nostr relays.</p>
+        
+        <div class="alert alert-info">
+          <strong>Having trouble with Nostr signing?</strong> Check out our <a href="<%= debug_bookmarklet_path %>">debugging page</a> to verify your Nostr extension is working correctly.
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
       <h2>Troubleshooting</h2>
       <div class="bookmarklet-instructions">
         <h3>Common Issues:</h3>
@@ -57,14 +77,47 @@
           <li><strong>No Nostr Extension</strong>: If you don't have a Nostr extension installed, you can still save bookmarks, but they won't be published to the Nostr network.</li>
           <li><strong>Bookmark Not Saving</strong>: Make sure you're logged into your Pinstr account in the same browser.</li>
           <li><strong>Bookmarklet Not Working</strong>: Try reinstalling the bookmarklet by dragging it to your bookmarks bar again.</li>
+          <li><strong>Nostr Signing Fails</strong>: Check if your Nostr extension is properly configured and has permissions for the Pinstr site.</li>
         </ul>
       </div>
     </div>
   </div>
   
   <div class="row">
-    <div class="col-12">
-      <a href="<%= root_path %>" class="btn btn-secondary">&larr; Back to Home</a>
+    <div class="col-12 mb-4">
+      <div class="d-flex gap-2">
+        <a href="<%= root_path %>" class="btn btn-secondary">&larr; Back to Home</a>
+        <a href="<%= debug_bookmarklet_path %>" class="btn btn-info">Nostr Debug Tools</a>
+      </div>
     </div>
   </div>
 </div>
+
+<style>
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  
+  .d-flex {
+    display: flex;
+  }
+  
+  .alert-info {
+    background-color: #cff4fc;
+    border-color: #b6effb;
+    color: #055160;
+    padding: 0.75rem 1.25rem;
+    margin-top: 1rem;
+    border-radius: 0.25rem;
+  }
+  
+  .btn-info {
+    background-color: #0dcaf0;
+    color: #000;
+  }
+  
+  .btn-info:hover {
+    background-color: #0bb1d3;
+    color: #000;
+  }
+</style>

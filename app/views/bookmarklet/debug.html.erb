@@ -1,0 +1,325 @@
+<div class="container">
+  <h1>Nostr Extension Debug</h1>
+  
+  <div class="card mb-4">
+    <div class="card-header">Real-time Nostr Detection</div>
+    <div class="card-body">
+      <div id="live-status">
+        <p id="status-message">Checking...</p>
+        <div id="detection-log" class="detection-log"></div>
+      </div>
+      
+      <button id="manual-check" class="btn btn-primary">Manual Check</button>
+      <button id="test-pubkey" class="btn btn-secondary">Test getPublicKey</button>
+      <button id="test-signing" class="btn btn-secondary">Test signEvent</button>
+    </div>
+  </div>
+  
+  <div class="card mb-4">
+    <div class="card-header">Browser Information</div>
+    <div class="card-body">
+      <table class="table">
+        <tbody>
+          <tr>
+            <th>User Agent</th>
+            <td id="user-agent"></td>
+          </tr>
+          <tr>
+            <th>URL</th>
+            <td id="current-url"></td>
+          </tr>
+          <tr>
+            <th>Extensions Detected</th>
+            <td id="extensions-list"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="card mb-4">
+    <div class="card-header">Test Results</div>
+    <div class="card-body">
+      <div id="test-results" style="display: none;">
+        <pre id="test-output" class="code-block"></pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-12">
+      <a href="<%= bookmarklet_instructions_path %>" class="btn btn-secondary">&larr; Back to Instructions</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const statusMessage = document.getElementById('status-message');
+  const detectionLog = document.getElementById('detection-log');
+  const testResults = document.getElementById('test-results');
+  const testOutput = document.getElementById('test-output');
+  
+  // Fill in browser info
+  document.getElementById('user-agent').textContent = navigator.userAgent;
+  document.getElementById('current-url').textContent = window.location.href;
+  
+  // Log function
+  function log(message) {
+    console.log(message);
+    const logEntry = document.createElement('div');
+    logEntry.className = 'log-entry';
+    logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+    detectionLog.appendChild(logEntry);
+    detectionLog.scrollTop = detectionLog.scrollHeight;
+  }
+  
+  // Check for common extensions
+  function checkExtensions() {
+    const extensions = [];
+    
+    // Check for common extension objects
+    if (window.nostr) extensions.push('Nostr (window.nostr)');
+    if (window.webln) extensions.push('WebLN (window.webln)');
+    if (window.ethereum) extensions.push('Ethereum (window.ethereum)');
+    if (window.bitcoin) extensions.push('Bitcoin (window.bitcoin)');
+    
+    document.getElementById('extensions-list').textContent = extensions.length > 0 ? extensions.join(', ') : 'None detected';
+  }
+  
+  // Main Nostr check function
+  function checkNostr() {
+    log('Starting Nostr check...');
+    
+    if (!window.nostr) {
+      statusMessage.textContent = 'No window.nostr object found';
+      statusMessage.className = 'status-error';
+      log('window.nostr is not defined');
+      return false;
+    }
+    
+    log('window.nostr found: ' + typeof window.nostr);
+    log('window.nostr object: ' + JSON.stringify(Object.keys(window.nostr)));
+    
+    const hasPubkey = typeof window.nostr.getPublicKey === 'function';
+    const hasSignEvent = typeof window.nostr.signEvent === 'function';
+    
+    log('getPublicKey method: ' + typeof window.nostr.getPublicKey);
+    log('signEvent method: ' + typeof window.nostr.signEvent);
+    
+    if (hasPubkey && hasSignEvent) {
+      statusMessage.textContent = 'Nostr extension detected and ready!';
+      statusMessage.className = 'status-success';
+      log('Nostr extension fully functional');
+      return true;
+    } else {
+      const missing = [];
+      if (!hasPubkey) missing.push('getPublicKey');
+      if (!hasSignEvent) missing.push('signEvent');
+      
+      statusMessage.textContent = 'Nostr extension missing methods: ' + missing.join(', ');
+      statusMessage.className = 'status-error';
+      log('Nostr extension missing methods: ' + missing.join(', '));
+      return false;
+    }
+  }
+  
+  // Continuous checking
+  let checkCount = 0;
+  function continuousCheck() {
+    checkCount++;
+    log(`Continuous check #${checkCount}`);
+    
+    if (checkNostr()) {
+      log('Nostr detected, stopping continuous checks');
+      return;
+    }
+    
+    if (checkCount < 20) {
+      setTimeout(continuousCheck, 1000);
+    } else {
+      log('Gave up after 20 attempts');
+    }
+  }
+  
+  // Manual check button
+  document.getElementById('manual-check').addEventListener('click', function() {
+    log('Manual check requested');
+    checkExtensions();
+    checkNostr();
+  });
+  
+  // Test pubkey button
+  document.getElementById('test-pubkey').addEventListener('click', async function() {
+    testResults.style.display = 'block';
+    testOutput.textContent = 'Testing getPublicKey...';
+    
+    if (!window.nostr || typeof window.nostr.getPublicKey !== 'function') {
+      testOutput.textContent = 'Error: getPublicKey not available';
+      testOutput.className = 'code-block error';
+      return;
+    }
+    
+    try {
+      const pubkey = await window.nostr.getPublicKey();
+      testOutput.textContent = 'Success: ' + pubkey;
+      testOutput.className = 'code-block success';
+      log('getPublicKey test successful: ' + pubkey);
+    } catch (error) {
+      testOutput.textContent = 'Error: ' + error.message;
+      testOutput.className = 'code-block error';
+      log('getPublicKey test failed: ' + error.message);
+    }
+  });
+  
+  // Test signing button
+  document.getElementById('test-signing').addEventListener('click', async function() {
+    testResults.style.display = 'block';
+    testOutput.textContent = 'Testing signEvent...';
+    
+    if (!window.nostr || typeof window.nostr.signEvent !== 'function' || typeof window.nostr.getPublicKey !== 'function') {
+      testOutput.textContent = 'Error: Required Nostr methods not available';
+      testOutput.className = 'code-block error';
+      return;
+    }
+    
+    try {
+      // Get pubkey first
+      const pubkey = await window.nostr.getPublicKey();
+      
+      // Create a test event
+      const testEvent = {
+        kind: 1,
+        pubkey: pubkey,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [],
+        content: 'This is a test event from Pinstr debugging page.'
+      };
+      
+      // Sign it
+      const signedEvent = await window.nostr.signEvent(testEvent);
+      
+      // Display result
+      testOutput.textContent = JSON.stringify(signedEvent, null, 2);
+      testOutput.className = 'code-block success';
+      log('signEvent test successful');
+    } catch (error) {
+      testOutput.textContent = 'Error: ' + error.message;
+      testOutput.className = 'code-block error';
+      log('signEvent test failed: ' + error.message);
+    }
+  });
+  
+  // Start initial checks
+  checkExtensions();
+  continuousCheck();
+});
+</script>
+
+<style>
+.card {
+  margin-bottom: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+}
+
+.card-header {
+  padding: 0.75rem 1.25rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.detection-log {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+  margin: 1rem 0;
+}
+
+.log-entry {
+  margin: 2px 0;
+  word-break: break-all;
+}
+
+.status-success {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-error {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  word-break: break-all;
+}
+
+.code-block {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.code-block.success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.code-block.error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  margin: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-secondary {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #6c757d;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+</style>
