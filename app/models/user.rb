@@ -3,11 +3,6 @@ class User < ApplicationRecord
 
   validates :public_key, presence: true, uniqueness: true, if: :public_key?
   
-  # Username can be nil in case it's not set
-  validates :username, uniqueness: true, allow_nil: true
-  
-  before_validation :generate_username, on: :create, if: -> { username.blank? }
-
   def self.find_or_create_by_public_key(pubkey)
     return nil if pubkey.blank?
     
@@ -30,11 +25,5 @@ class User < ApplicationRecord
   def self.normalize_pubkey(pubkey)
     # For now, just ensure it's a string and trimmed
     pubkey.to_s.strip
-  end
-  
-  private
-  
-  def generate_username
-    self.username = "user_b5776ae2" if username.blank?
   end
 end

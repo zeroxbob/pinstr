@@ -3,7 +3,7 @@
 
 <% if current_user %>
   <div class="mb-4">
-    <p>You are logged in as <strong><%= current_user.username %></strong>.</p>
+    <p>You are logged in with public key <strong><%= current_user.public_key.truncate(10) %></strong>.</p>
     <%= link_to "View your bookmarks", bookmarks_path, class: "btn btn-primary" %>
   </div>
 <% else %>
