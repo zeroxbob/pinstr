@@ -47,7 +47,7 @@
   <div class="nostr-help mt-3">
     <p><small>
       <strong>Note:</strong> If you have a Nostr extension installed (like nos2x or Alby), you'll be prompted to sign this bookmark.
-      <a href="<%= debug_bookmarklet_path %>" target="_blank">Nostr not working?</a>
+      <a href="<%= debug_bookmarklet_path %>" target="_blank">Nostr extension not working?</a>
     </small></p>
   </div>
 </div>
@@ -100,7 +100,7 @@
           // Try to get pubkey to verify it's really working
           window.nostr.getPublicKey()
             .then(pubkey => {
-              statusElement.textContent = `Nostr ready: ${pubkey.substring(0, 8)}...`;
+              statusElement.textContent = `Nostr extension ready: ${pubkey.substring(0, 8)}...`;
               console.log('✓ Nostr pubkey retrieved successfully in popup:', pubkey);
             })
             .catch(err => {
