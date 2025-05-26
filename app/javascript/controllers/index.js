@@ -2,16 +2,19 @@
 // Run that command whenever you add a new controller or create them with
 // ./bin/rails generate stimulus controllerName
 
-import { application } from "./application"
+import { application } from "controllers/application"
 
-import BookmarkletSignController from "./bookmarklet_sign_controller"
-application.register("bookmarklet-sign", BookmarkletSignController)
+import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading"
+eagerLoadControllersFrom("controllers", application)
 
-import HelloController from "./hello_controller"
-application.register("hello", HelloController)
+// import BookmarkletSignController from "./bookmarklet_sign_controller"
+// application.register("bookmarklet-sign", BookmarkletSignController)
 
-import NostrAuthController from "./nostr_auth_controller"
-application.register("nostr-auth", NostrAuthController)
+// import HelloController from "./hello_controller"
+// application.register("hello", HelloController)
 
-import NostrSignController from "./nostr_sign_controller"
-application.register("nostr-sign", NostrSignController)
+// import NostrAuthController from "./nostr_auth_controller"
+// application.register("nostr-auth", NostrAuthController)
+
+// import NostrSignController from "./nostr_sign_controller"
+// application.register("nostr-sign", NostrSignController)
