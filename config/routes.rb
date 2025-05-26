@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   post "/auth", to: "sessions#create"
-  delete "/auth", to: "sessions#destroy"
+  delete "/auth", to: "sessions#destroy", as: :logout
 
   # Bookmarklet routes
   get "/bookmarklet", to: "bookmarklet#add", as: :bookmarklet
