@@ -30,6 +30,7 @@ export default class extends Controller {
       console.log("Nostr methods:", Object.keys(window.nostr));
       
       this.statusTarget.textContent = "Nostr extension detected ✓";
+      this.statusTarget.classList.remove("text-danger");
       this.statusTarget.classList.add("text-success");
       this.loginButtonTarget.disabled = false;
       
@@ -39,6 +40,7 @@ export default class extends Controller {
       }
     } else {
       this.statusTarget.textContent = "No Nostr extension detected. Please install a Nostr extension.";
+      this.statusTarget.classList.remove("text-success");
       this.statusTarget.classList.add("text-danger");
       this.loginButtonTarget.disabled = true;
     }
@@ -95,8 +97,14 @@ export default class extends Controller {
       const responseData = await response.json().catch(() => null);
       
       if (response.ok) {
-        this.statusTarget.textContent = "Login successful! Redirecting...";
-        window.location.reload();
+        this.statusTarget.textContent = "Successfully logged in! Redirecting...";
+        this.statusTarget.classList.remove("text-danger");
+        this.statusTarget.classList.add("text-success");
+        // Store a flag in sessionStorage to show success message after reload
+        sessionStorage.setItem('justLoggedIn', 'true');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
       } else {
         console.error("Login failed", response.status, responseData);
         this.loginButtonTarget.disabled = false;
