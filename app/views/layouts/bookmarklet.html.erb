@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pinstr Bookmarklet</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        max-width: 750px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+      input[type="text"], textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      textarea {
+        min-height: 6rem;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+      }
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background-color: #0066cc;
+        color: white;
+      }
+      .btn-secondary {
+        background-color: #f2f2f2;
+        color: #333;
+      }
+      .alert {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+      .notice {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+      
+      /* Debug console */
+      #debug-toggle {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: #333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      
+      #debug-console {
+        display: none;
+        position: fixed;
+        bottom: 40px;
+        right: 10px;
+        width: 300px;
+        height: 200px;
+        background: #1e1e1e;
+        color: #11f211;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 12px;
+        overflow-y: auto;
+        z-index: 9999;
+      }
+      
+      .debug-line {
+        margin: 2px 0;
+        word-break: break-all;
+      }
+    </style>
+    
+    <script>
+      // Global helper for Nostr integration
+      window.PinstrNostr = {
+        // Function to check if Nostr extension is present and valid
+        checkNostrExtension: function() {
+          if (!window.nostr) {
+            console.log('No Nostr extension found in window object');
+            return false;
+          }
+          
+          // Check required methods
+          const hasPubkey = typeof window.nostr.getPublicKey === 'function';
+          const hasSign = typeof window.nostr.signEvent === 'function';
+          
+          if (!hasPubkey || !hasSign) {
+            console.log('Nostr extension missing required methods');
+            return false;
+          }
+          
+          return true;
+        },
+        
+        // Function to sign an event with timeout
+        signEventWithTimeout: async function(event, timeoutMs = 5000) {
+          if (!this.checkNostrExtension()) {
+            throw new Error('Nostr extension not available or invalid');
+          }
+          
+          return new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+              console.warn('Nostr signEvent timed out after', timeoutMs, 'ms');
+              reject(new Error('Signing timed out'));
+            }, timeoutMs);
+            
+            // Make only ONE attempt to sign
+            window.nostr.signEvent(event)
+              .then(signedEvent => {
+                clearTimeout(timeoutId);
+                resolve(signedEvent);
+              })
+              .catch(error => {
+                clearTimeout(timeoutId);
+                reject(error);
+              });
+          });
+        }
+      };
+    
+      // Debug console helper
+      document.addEventListener('DOMContentLoaded', function() {
+        // Create debug toggle button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'debug-toggle';
+        toggleBtn.textContent = 'Debug';
+        document.body.appendChild(toggleBtn);
+        
+        // Create debug console
+        const debugConsole = document.createElement('div');
+        debugConsole.id = 'debug-console';
+        document.body.appendChild(debugConsole);
+        
+        // Toggle debug console
+        toggleBtn.addEventListener('click', function() {
+          debugConsole.style.display = debugConsole.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Intercept console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function() {
+          addToDebugConsole('LOG', arguments);
+          originalLog.apply(console, arguments);
+        };
+        
+        console.error = function() {
+          addToDebugConsole('ERROR', arguments);
+          originalError.apply(console, arguments);
+        };
+        
+        console.warn = function() {
+          addToDebugConsole('WARN', arguments);
+          originalWarn.apply(console, arguments);
+        };
+        
+        function addToDebugConsole(type, args) {
+          const line = document.createElement('div');
+          line.className = 'debug-line';
+          
+          // Convert arguments to array and stringify
+          const argsArray = Array.from(args);
+          let content = argsArray.map(arg => {
+            if (typeof arg === 'object') {
+              try {
+                return JSON.stringify(arg);
+              } catch (e) {
+                return String(arg);
+              }
+            }
+            return String(arg);
+          }).join(' ');
+          
+          // Add type prefix with color
+          let typeHtml = '';
+          if (type === 'LOG') {
+            typeHtml = '<span style="color:#11f211;">[LOG]</span> ';
+          } else if (type === 'ERROR') {
+            typeHtml = '<span style="color:#f21111;">[ERROR]</span> ';
+          } else if (type === 'WARN') {
+            typeHtml = '<span style="color:#f2a511;">[WARN]</span> ';
+          }
+          
+          line.innerHTML = typeHtml + content;
+          debugConsole.appendChild(line);
+          debugConsole.scrollTop = debugConsole.scrollHeight;
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    <% if notice %>
+      <div class="notice"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+      <div class="alert"><%= alert %></div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>

@@ -1,2 +1,76 @@
-<h1>Home#index</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<h1>Welcome to Pinstr</h1>
+<p class="mb-4">Pinstr is a bookmark manager that uses Nostr to store and sync your bookmarks.</p>
+
+<% if current_user %>
+  <div class="mb-4">
+    <p>You are logged in with public key <strong><%= current_user.public_key.truncate(10) %></strong>.</p>
+    <%= link_to "View your bookmarks", bookmarks_path, class: "btn btn-primary" %>
+  </div>
+<% else %>
+  <div class="mb-4">
+    <p>Please log in with Nostr to manage your bookmarks.</p>
+    <%= link_to "Login", new_session_path, class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<h2>Bookmarklet</h2>
+<p>Drag this bookmarklet to your bookmarks bar to quickly save pages to Pinstr:</p>
+
+<div class="bookmarklet-container">
+  <a href="javascript:<%= raw(bookmarklet_code) %>" class="bookmarklet-link">
+    Save to Pinstr
+  </a>
+  <p style="margin-top: 1rem; color: #6c757d;">
+    <small>(Drag this link to your bookmarks bar)</small>
+  </p>
+</div>
+
+<div class="bookmarklet-instructions">
+  <h3>How to use:</h3>
+  <ol>
+    <li>Drag the "Save to Pinstr" link above to your browser's bookmarks bar.</li>
+    <li>When you're on a webpage you want to save, click the bookmarklet in your bookmarks bar.</li>
+    <li>A popup window will open with the page details pre-filled.</li>
+    <li>Add or edit any details, then click "Save Bookmark".</li>
+    <li>Your bookmark will be saved to your Pinstr account and published to Nostr.</li>
+  </ol>
+  
+  <p class="text-center">
+    <a href="<%= bookmarklet_instructions_path %>" class="btn btn-secondary">
+      Detailed Instructions
+    </a>
+  </p>
+</div>
+
+<h2>Nostr Integration</h2>
+<p>For full functionality, you'll need a Nostr browser extension. We recommend:</p>
+
+<div class="row">
+  <div class="col-12 col-md-4 mb-3">
+    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background-color: #f8f9fa; height: 100%;">
+      <h4 style="margin-top: 0; color: #2c3e50;">Alby</h4>
+      <p>A Bitcoin and Nostr extension with wallet capabilities</p>
+      <a href="https://getalby.com/" target="_blank" class="btn btn-sm btn-secondary">Get Alby</a>
+    </div>
+  </div>
+  
+  <div class="col-12 col-md-4 mb-3">
+    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background-color: #f8f9fa; height: 100%;">
+      <h4 style="margin-top: 0; color: #2c3e50;">nos2x</h4>
+      <p>A lightweight Nostr signer extension</p>
+      <a href="https://github.com/fiatjaf/nos2x" target="_blank" class="btn btn-sm btn-secondary">Get nos2x</a>
+    </div>
+  </div>
+  
+  <div class="col-12 col-md-4 mb-3">
+    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background-color: #f8f9fa; height: 100%;">
+      <h4 style="margin-top: 0; color: #2c3e50;">Nostr Connect</h4>
+      <p>For iOS and macOS users</p>
+      <a href="https://github.com/BlockchainCommons/nostr-commander-app" target="_blank" class="btn btn-sm btn-secondary">Learn More</a>
+    </div>
+  </div>
+</div>
+
+<div class="text-center mt-4">
+  <a href="<%= debug_bookmarklet_path %>" class="btn btn-secondary">Test Your Nostr Extension</a>
+</div>

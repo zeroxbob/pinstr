@@ -1,0 +1,58 @@
+<div style="text-align: center; padding: 2rem 0;">
+  <h1>Bookmark Saved!</h1>
+  <p>Your bookmark has been successfully saved to Pinstr.</p>
+  
+  <% if params[:nostr_signed] == 'true' %>
+    <div class="nostr-status nostr-status-connected">
+      <span style="font-size: 1.25em;">✓</span> Bookmark was signed with Nostr and will be published to relays.
+    </div>
+  <% elsif params[:nostr_signed] == 'false' %>
+    <div class="nostr-status nostr-status-disconnected">
+      <span style="font-size: 1.25em;">ℹ️</span> Bookmark was saved without Nostr signing.
+    </div>
+  <% end %>
+  
+  <div class="actions" style="justify-content: center; gap: 1rem;">
+    <button type="button" class="btn btn-primary" onclick="window.close()">Close</button>
+    <a href="<%= bookmarks_path %>" class="btn btn-secondary" target="_blank">View All Bookmarks</a>
+  </div>
+  
+  <% if params[:nostr_signed] == 'false' %>
+    <div class="mt-3">
+      <p><small>
+        Want to use Nostr for your bookmarks? 
+        <a href="<%= debug_bookmarklet_path %>" target="_blank">Set up Nostr integration</a>
+      </small></p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .nostr-status {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 16px auto;
+    max-width: 80%;
+    font-size: 14px;
+    color: #6c757d;
+    border-left: 4px solid #adb5bd;
+    text-align: left;
+  }
+  
+  .nostr-status-connected {
+    background-color: #d1e7dd;
+    border-left: 4px solid #198754;
+    color: #0f5132;
+  }
+  
+  .nostr-status-disconnected {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    color: #664d03;
+  }
+  
+  .mt-3 {
+    margin-top: 1rem;
+  }
+</style>

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "admin/dashboard", to: "admin#dashboard"
   root 'home#index'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -10,8 +11,15 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-    post "/auth", to: "sessions#create"
-  delete "/auth", to: "sessions#destroy"
+  post "/auth", to: "sessions#create"
+  delete "/auth", to: "sessions#destroy", as: :logout
+
+  # Bookmarklet routes
+  get "/bookmarklet", to: "bookmarklet#add", as: :bookmarklet
+  post "/bookmarklet", to: "bookmarklet#create", as: :create_from_bookmarklet
+  get "/bookmarklet/instructions", to: "bookmarklet#instructions", as: :bookmarklet_instructions
+  get "/bookmarklet/success", to: "bookmarklet#success", as: :success_bookmarklet
+  get "/bookmarklet/debug", to: "bookmarklet#debug", as: :debug_bookmarklet
 
   resources :sessions
   resources :bookmarks

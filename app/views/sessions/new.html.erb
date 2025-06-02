@@ -1,5 +1,82 @@
 <h2>Login with Nostr</h2>
-<div data-controller="nostr-auth">
-  <p data-nostr-auth-target="status">Checking extension...</p>
-  <button data-nostr-auth-target="loginButton" data-action="click->nostr-auth#login" disabled>Login with Nostr</button>
+<div data-controller="nostr-auth" class="nostr-login-container">
+  <p data-nostr-auth-target="status" class="status-message">Checking for Nostr extension...</p>
+  
+  <div class="login-info">
+    <p>To login, you need a <a href="https://nostr.com/" target="_blank">Nostr</a> browser extension:</p>
+    <ul>
+      <li><a href="https://getalby.com/" target="_blank">Alby</a></li>
+      <li><a href="https://github.com/fiatjaf/nos2x" target="_blank">nos2x</a></li>
+      <li><a href="https://chrome.google.com/webstore/detail/blockcore-signer/hpjpadgjfjjgpmgfafgjbcpdgpmdpebg" target="_blank">Blockcore</a></li>
+    </ul>
+  </div>
+  
+  <button 
+    data-nostr-auth-target="loginButton" 
+    data-action="click->nostr-auth#login" 
+    disabled
+    class="login-button">
+    Login with Nostr
+  </button>
+  
+  <div class="debug-info">
+    <p><small>If you're having trouble logging in, please check your browser console for more information.</small></p>
+  </div>
 </div>
+
+<style>
+  .nostr-login-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .status-message {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+  }
+  
+  .text-success {
+    color: green;
+    background-color: #e6ffe6;
+  }
+  
+  .text-danger {
+    color: red;
+    background-color: #ffe6e6;
+  }
+  
+  .login-button {
+    background-color: #6a5acd;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+  
+  .login-button:hover:not([disabled]) {
+    background-color: #5a4abd;
+  }
+  
+  .login-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .login-info {
+    margin-bottom: 1.5rem;
+  }
+  
+  .debug-info {
+    margin-top: 2rem;
+    color: #666;
+    font-size: 0.8rem;
+  }
+</style>

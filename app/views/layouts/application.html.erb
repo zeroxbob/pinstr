@@ -23,9 +23,31 @@
   </head>
 
   <body>
-    <% flash.each do |key, message| %>
-      <div class="flash <%= key %>"><%= message %></div>
-    <% end %>
-    <%= yield %>
+    <header>
+      <div class="header-content">
+        <h1><a href="/">Pinstr</a></h1>
+        <div class="nav-links">
+          <% if current_user %>
+            <a href="/bookmarks">My Bookmarks</a>
+            <a href="/bookmarks/new">New Bookmark</a>
+            <span data-controller="nostr-auth">
+              <button data-nostr-auth-target="logoutButton" data-action="click->nostr-auth#logout">Logout</button>
+            </span>
+          <% else %>
+            <a href="/sessions/new">Login</a>
+          <% end %>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
+      
+      <div class="main-content">
+        <%= yield %>
+      </div>
+    </div>
   </body>
 </html>

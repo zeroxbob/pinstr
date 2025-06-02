@@ -1,0 +1,123 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1>Pinstr Bookmarklet</h1>
+      <p>The Pinstr bookmarklet allows you to save webpages to your Pinstr account directly from your browser.</p>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>Installation</h2>
+      <div class="bookmarklet-container">
+        <a href="javascript:<%= raw(bookmarklet_code) %>" class="bookmarklet-link">
+          Save to Pinstr
+        </a>
+        <p class="mt-2">
+          <small>(Drag this link to your bookmarks bar)</small>
+        </p>
+      </div>
+      
+      <div class="bookmarklet-instructions">
+        <h3>How to Install:</h3>
+        <ol>
+          <li>Make sure your browser's bookmarks bar is visible. (In most browsers, you can press Ctrl+Shift+B or Cmd+Shift+B to toggle the bookmarks bar)</li>
+          <li>Click and drag the "Save to Pinstr" button above to your bookmarks bar.</li>
+          <li>The bookmarklet is now installed and ready to use!</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>How to Use</h2>
+      <div class="bookmarklet-instructions">
+        <ol>
+          <li>Navigate to any webpage you want to save as a bookmark.</li>
+          <li>Click the "Save to Pinstr" bookmarklet in your bookmarks bar.</li>
+          <li>A popup window will appear with the current page's URL and title pre-filled.</li>
+          <li>If you've selected text on the page before clicking the bookmarklet, it will be included in the description field.</li>
+          <li>Review and edit the bookmark details if needed.</li>
+          <li>Click "Save Bookmark" to save it to your Pinstr account.</li>
+          <li>If you have a Nostr extension installed (like nos2x or Alby), you'll be prompted to sign the bookmark event for publishing to Nostr.</li>
+          <li>After saving, you can close the popup or continue browsing.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>Nostr Integration</h2>
+      <div class="bookmarklet-instructions">
+        <p>The Pinstr bookmarklet works best with a Nostr browser extension installed:</p>
+        <ul>
+          <li><a href="https://getalby.com/" target="_blank">Alby</a> - Browser extension that includes Nostr capabilities</li>
+          <li><a href="https://github.com/fiatjaf/nos2x" target="_blank">nos2x</a> - Dedicated Nostr signer extension</li>
+          <li><a href="https://github.com/BlockchainCommons/nostr-commander-app" target="_blank">Nostr Commander</a> - For iOS/macOS users</li>
+        </ul>
+        
+        <p>These extensions allow the bookmarklet to create a properly signed Nostr event (NIP-B0) for your bookmark, which can then be published to Nostr relays.</p>
+        
+        <div class="alert alert-info">
+          <strong>Having trouble with Nostr signing?</strong> Check out our <a href="<%= debug_bookmarklet_path %>">debugging page</a> to verify your Nostr extension is working correctly.
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>Troubleshooting</h2>
+      <div class="bookmarklet-instructions">
+        <h3>Common Issues:</h3>
+        <ul>
+          <li><strong>Popup Blocked</strong>: If your browser blocks the popup, you'll need to allow popups from your Pinstr domain.</li>
+          <li><strong>No Nostr Extension</strong>: If you don't have a Nostr extension installed, you can still save bookmarks, but they won't be published to the Nostr network.</li>
+          <li><strong>Bookmark Not Saving</strong>: Make sure you're logged into your Pinstr account in the same browser.</li>
+          <li><strong>Bookmarklet Not Working</strong>: Try reinstalling the bookmarklet by dragging it to your bookmarks bar again.</li>
+          <li><strong>Nostr Signing Fails</strong>: Check if your Nostr extension is properly configured and has permissions for the Pinstr site.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="d-flex gap-2">
+        <a href="<%= root_path %>" class="btn btn-secondary">&larr; Back to Home</a>
+        <a href="<%= debug_bookmarklet_path %>" class="btn btn-info">Nostr Debug Tools</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  
+  .d-flex {
+    display: flex;
+  }
+  
+  .alert-info {
+    background-color: #cff4fc;
+    border-color: #b6effb;
+    color: #055160;
+    padding: 0.75rem 1.25rem;
+    margin-top: 1rem;
+    border-radius: 0.25rem;
+  }
+  
+  .btn-info {
+    background-color: #0dcaf0;
+    color: #000;
+  }
+  
+  .btn-info:hover {
+    background-color: #0bb1d3;
+    color: #000;
+  }
+</style>

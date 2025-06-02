@@ -1,14 +1,23 @@
 <h1><%= @bookmark.title %></h1>
 
-<p>
-  <strong>URL:</strong>
-  <%= link_to @bookmark.url, @bookmark.url %>
-</p>
+<div class="mb-4">
+  <div class="form-group">
+    <strong>URL:</strong>
+    <%= link_to @bookmark.url, @bookmark.url, target: '_blank', class: 'text-decoration-none' %>
+  </div>
 
-<p>
-  <strong>Description:</strong>
-  <%= @bookmark.description %>
-</p>
+  <% if @bookmark.description.present? %>
+    <div class="form-group">
+      <strong>Description:</strong>
+      <p><%= simple_format(@bookmark.description) %></p>
+    </div>
+  <% end %>
+</div>
 
-<%= link_to 'Edit', edit_bookmark_path(@bookmark) %> |
-<%= link_to 'Back', bookmarks_path %>
+<div class="action-links">
+  <%= link_to 'Edit', edit_bookmark_path(@bookmark), class: 'btn btn-secondary' %>
+  <%= link_to 'Delete', @bookmark, method: :delete, 
+              data: { confirm: 'Are you sure you want to delete this bookmark?' }, 
+              class: 'btn btn-sm', style: 'background-color: #dc3545; color: white;' %>
+  <%= link_to 'Back to Bookmarks', bookmarks_path, class: 'btn btn-primary' %>
+</div>

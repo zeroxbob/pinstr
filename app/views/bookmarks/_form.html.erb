@@ -1,9 +1,8 @@
 <%= form_with(model: @bookmark, local: true, data: { controller: "nostr-sign" }) do |form| %>
   <% if @bookmark.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h2>
-
-      <ul>
+    <div class="flash alert">
+      <h4><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h4>
+      <ul style="margin: 0.5rem 0 0 1rem;">
         <% @bookmark.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -11,24 +10,24 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :title %><br />
-    <%= form.text_field :title %>
+  <div class="form-group">
+    <%= form.label :title %>
+    <%= form.text_field :title, required: true, class: 'form-control' %>
   </div>
 
-  <div>
-    <%= form.label :url %><br />
-    <%= form.text_field :url %>
+  <div class="form-group">
+    <%= form.label :url %>
+    <%= form.text_field :url, required: true, class: 'form-control' %>
   </div>
 
-  <div>
-    <%= form.label :description %><br />
-    <%= form.text_area :description %>
+  <div class="form-group">
+    <%= form.label :description %>
+    <%= form.text_area :description, class: 'form-control' %>
+    <small style="color: #6c757d; font-size: 0.875rem;">You can add hashtags using #tag format to categorize this bookmark.</small>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <div class="form-group">
+    <%= form.submit "Create NIP-B0 Web Bookmark", class: 'btn btn-primary' %>
+    <%= link_to 'Cancel', bookmarks_path, class: 'btn btn-secondary' %>
   </div>
 <% end %>
-
-<%= link_to 'Back', bookmarks_path %>
