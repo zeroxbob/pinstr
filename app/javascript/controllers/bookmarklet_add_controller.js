@@ -333,8 +333,10 @@ export default class extends Controller {
       const data = await response.json()
       console.log('✅ Server success:', data)
       
-      // Show success message and auto-close
-      this.showSuccessAndClose('Your bookmark has been successfully saved and signed with Nostr.', true)
+      // Redirect to the Rails success view
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url
+      }
       
       return true
     } catch (error) {
@@ -347,27 +349,42 @@ export default class extends Controller {
   async submitFormDirectly(title, url, description) {
     console.log('📤 Submitting form directly without Nostr')
     
-    const formData = new FormData(this.formTarget)
-    formData.append('direct_submission', 'true')
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content
+    
+    const payload = {
+      bookmark: {
+        title: title,
+        url: url,
+        description: description
+      },
+      popup: this.isPopup ? true : undefined
+    }
     
     try {
       const actionUrl = this.formTarget.getAttribute('action')
       const response = await fetch(actionUrl, {
         method: 'POST',
-        body: formData,
         headers: {
-          'Accept': 'text/html,application/xhtml+xml'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
         },
-        redirect: 'follow'
+        body: JSON.stringify(payload)
       })
       
       console.log('📤 Direct submission response:', response)
       
       if (response.ok) {
-        // Show success message and auto-close
-        this.showSuccessAndClose('Your bookmark has been successfully saved.', false)
+        const data = await response.json()
+        console.log('✅ Direct submission success:', data)
+        
+        // Redirect to the Rails success view
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url
+        }
       } else {
-        throw new Error('Server returned an error')
+        const errorData = await response.json()
+        throw new Error(errorData.errors ? errorData.errors.join(', ') : 'Server error')
       }
     } catch (error) {
       console.error('❌ Error in direct submission:', error)
@@ -382,57 +399,6 @@ export default class extends Controller {
     }
   }
 
-  showSuccessAndClose(message, nostrSigned) {
-    console.log('🎉 Showing success message and preparing to close')
-    
-    const container = document.getElementById('form-container')
-    
-    // Show success message with Nostr status
-    let nostrStatusHtml = ''
-    if (nostrSigned) {
-      nostrStatusHtml = '<div class="success-nostr-status success">✓ Bookmark signed with Nostr and will be published to relays</div>'
-    } else {
-      nostrStatusHtml = '<div class="success-nostr-status warning">ℹ️ Bookmark saved without Nostr signing</div>'
-    }
-    
-    container.innerHTML = `
-      <div class="success-message">
-        <h2>Bookmark Saved!</h2>
-        <p>${message || 'Your bookmark has been successfully saved to Pinstr.'}</p>
-        ${nostrStatusHtml}
-        <div class="auto-close-notice">
-          <p><small>This window will close automatically in <span id="countdown">3</span> seconds...</small></p>
-          <div class="buttons">
-            <button type="button" class="btn btn-primary" onclick="window.close()">Close Now</button>
-          </div>
-        </div>
-      </div>
-    `
-    
-    // Countdown and auto-close
-    let countdown = 3
-    const countdownElement = document.getElementById('countdown')
-    
-    const countdownInterval = setInterval(() => {
-      countdown--
-      if (countdownElement) {
-        countdownElement.textContent = countdown
-      }
-      
-      if (countdown <= 0) {
-        clearInterval(countdownInterval)
-        console.log('⏰ Auto-closing popup window')
-        
-        // Only close if we're actually in a popup
-        if (this.isPopup) {
-          window.close()
-        } else {
-          // If not in popup, redirect to bookmarks page
-          window.location.href = '/bookmarks'
-        }
-      }
-    }, 1000)
-  }
 
   cancelBookmark() {
     window.close()
