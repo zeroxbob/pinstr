@@ -48,7 +48,7 @@ export default class extends Controller {
           window.nostrExtensionFound = true
           
           this.statusTarget.textContent = "Nostr extension detected ✓"
-          this.statusTarget.className = "nostr-status nostr-status-connected"
+          this.statusTarget.className = "bg-green-50 px-4 py-3 rounded-lg border-l-4 border-green-500 mb-4 text-sm text-green-800 font-medium"
           console.log('✓ Nostr extension fully detected and ready in bookmarklet popup')
           
           // Try to get pubkey to verify it's really working
@@ -69,7 +69,7 @@ export default class extends Controller {
           if (!hasSignEvent) missingMethods.push("signEvent")
           
           this.statusTarget.textContent = `Nostr extension missing: ${missingMethods.join(", ")}`
-          this.statusTarget.className = "nostr-status nostr-status-error"
+          this.statusTarget.className = "bg-red-50 px-4 py-3 rounded-lg border-l-4 border-red-500 mb-4 text-sm text-red-800 font-medium"
           console.log('✗ Nostr extension found but missing methods:', missingMethods)
           return // Stop checking
         }
@@ -79,7 +79,7 @@ export default class extends Controller {
         window.nostrExtensionFound = false
         
         this.statusTarget.textContent = "No Nostr extension detected. Bookmark will be saved without signing."
-        this.statusTarget.className = "nostr-status nostr-status-disconnected"
+        this.statusTarget.className = "bg-yellow-50 px-4 py-3 rounded-lg border-l-4 border-yellow-500 mb-4 text-sm text-yellow-800 font-medium"
         console.log('✗ No Nostr extension found after', maxChecks, 'seconds in popup')
         return
       } else {
