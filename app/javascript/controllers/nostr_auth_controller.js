@@ -1,18 +1,22 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Stimulus controller for Nostr authentication
-// Manages detection of Nostr extension, requesting public key, and login/logout.
+// Manages detection of Nostr extension, requesting public key, and login.
 export default class extends Controller {
-  static targets = ["loginButton", "status", "logoutButton"]
+  static targets = ["loginButton", "status"]
 
   connect() {
     console.log("Nostr auth controller connected");
-    this.checkNostrExtension();
     
-    // Check for extension every second in case it loads after the page
-    this.extensionCheckInterval = setInterval(() => {
+    // Only do status-related operations if we have a status target
+    if (this.hasStatusTarget) {
       this.checkNostrExtension();
-    }, 1000);
+      
+      // Check for extension every second in case it loads after the page
+      this.extensionCheckInterval = setInterval(() => {
+        this.checkNostrExtension();
+      }, 1000);
+    }
   }
   
   disconnect() {
@@ -29,20 +33,28 @@ export default class extends Controller {
     if (window.nostr) {
       console.log("Nostr methods:", Object.keys(window.nostr));
       
-      this.statusTarget.textContent = "Nostr extension detected ✓";
-      this.statusTarget.classList.remove("text-danger");
-      this.statusTarget.classList.add("text-success");
-      this.loginButtonTarget.disabled = false;
+      if (this.hasStatusTarget) {
+        this.statusTarget.textContent = "Nostr extension detected ✓";
+        this.statusTarget.classList.remove("text-danger");
+        this.statusTarget.classList.add("text-success");
+      }
+      if (this.hasLoginButtonTarget) {
+        this.loginButtonTarget.disabled = false;
+      }
       
       // Clear interval once extension is detected
       if (this.extensionCheckInterval) {
         clearInterval(this.extensionCheckInterval);
       }
     } else {
-      this.statusTarget.textContent = "No Nostr extension detected. Please install a Nostr extension.";
-      this.statusTarget.classList.remove("text-success");
-      this.statusTarget.classList.add("text-danger");
-      this.loginButtonTarget.disabled = true;
+      if (this.hasStatusTarget) {
+        this.statusTarget.textContent = "No Nostr extension detected. Please install a Nostr extension.";
+        this.statusTarget.classList.remove("text-success");
+        this.statusTarget.classList.add("text-danger");
+      }
+      if (this.hasLoginButtonTarget) {
+        this.loginButtonTarget.disabled = true;
+      }
     }
   }
 
@@ -71,18 +83,28 @@ export default class extends Controller {
     console.log("Login button clicked");
     
     // Disable button during login process
-    this.loginButtonTarget.disabled = true;
-    this.statusTarget.textContent = "Requesting public key...";
+    if (this.hasLoginButtonTarget) {
+      this.loginButtonTarget.disabled = true;
+    }
+    if (this.hasStatusTarget) {
+      this.statusTarget.textContent = "Requesting public key...";
+    }
     
     try {
       const pubkey = await this.requestPublicKey();
       if (!pubkey) {
-        this.loginButtonTarget.disabled = false;
-        this.statusTarget.textContent = "Failed to get public key";
+        if (this.hasLoginButtonTarget) {
+          this.loginButtonTarget.disabled = false;
+        }
+        if (this.hasStatusTarget) {
+          this.statusTarget.textContent = "Failed to get public key";
+        }
         return;
       }
       
-      this.statusTarget.textContent = "Logging in...";
+      if (this.hasStatusTarget) {
+        this.statusTarget.textContent = "Logging in...";
+      }
       
       // Send POST to /auth with the pubkey
       const response = await fetch("/auth", {
@@ -97,9 +119,11 @@ export default class extends Controller {
       const responseData = await response.json().catch(() => null);
       
       if (response.ok) {
-        this.statusTarget.textContent = "Successfully logged in! Redirecting...";
-        this.statusTarget.classList.remove("text-danger");
-        this.statusTarget.classList.add("text-success");
+        if (this.hasStatusTarget) {
+          this.statusTarget.textContent = "Successfully logged in! Redirecting...";
+          this.statusTarget.classList.remove("text-danger");
+          this.statusTarget.classList.add("text-success");
+        }
         // Store a flag in sessionStorage to show success message after reload
         sessionStorage.setItem('justLoggedIn', 'true');
         setTimeout(() => {
@@ -107,41 +131,26 @@ export default class extends Controller {
         }, 1000);
       } else {
         console.error("Login failed", response.status, responseData);
-        this.loginButtonTarget.disabled = false;
-        this.statusTarget.textContent = "Login failed: " + (responseData?.error || response.statusText);
+        if (this.hasLoginButtonTarget) {
+          this.loginButtonTarget.disabled = false;
+        }
+        if (this.hasStatusTarget) {
+          this.statusTarget.textContent = "Login failed: " + (responseData?.error || response.statusText);
+        }
         alert("Login failed: " + (responseData?.error || response.statusText));
       }
     } catch (error) {
       console.error("Login error:", error);
-      this.loginButtonTarget.disabled = false;
-      this.statusTarget.textContent = "Login error: " + error.message;
+      if (this.hasLoginButtonTarget) {
+        this.loginButtonTarget.disabled = false;
+      }
+      if (this.hasStatusTarget) {
+        this.statusTarget.textContent = "Login error: " + error.message;
+      }
       alert("Login error: " + error.message);
     }
   }
 
-  async logout() {
-    console.log("Logout button clicked");
-    
-    try {
-      const response = await fetch("/auth", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": this.getMetaValue("csrf-token")
-        }
-      });
-      
-      if (response.ok) {
-        window.location.reload();
-      } else {
-        console.error("Logout failed", response);
-        alert("Logout failed");
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert("Logout error: " + error.message);
-    }
-  }
 
   getMetaValue(name) {
     const element = document.head.querySelector(`meta[name="${name}"]`);
