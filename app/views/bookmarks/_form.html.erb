@@ -1,8 +1,8 @@
-<%= form_with(model: @bookmark, local: true, data: { controller: "nostr-sign" }) do |form| %>
+<%= form_with(model: @bookmark, local: true, data: { controller: "nostr-sign" }, class: "space-y-6") do |form| %>
   <% if @bookmark.errors.any? %>
-    <div class="flash alert">
-      <h4><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h4>
-      <ul style="margin: 0.5rem 0 0 1rem;">
+    <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+      <h4 class="font-medium mb-2"><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h4>
+      <ul class="list-disc list-inside space-y-1">
         <% @bookmark.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -10,24 +10,24 @@
     </div>
   <% end %>
 
-  <div class="form-group">
-    <%= form.label :title %>
-    <%= form.text_field :title, required: true, class: 'form-control' %>
+  <div class="space-y-2">
+    <%= form.label :title, class: "block font-medium text-gray-700" %>
+    <%= form.text_field :title, required: true, class: 'w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all' %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :url %>
-    <%= form.text_field :url, required: true, class: 'form-control' %>
+  <div class="space-y-2">
+    <%= form.label :url, class: "block font-medium text-gray-700" %>
+    <%= form.text_field :url, required: true, class: 'w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all' %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :description %>
-    <%= form.text_area :description, class: 'form-control' %>
-    <small style="color: #6c757d; font-size: 0.875rem;">You can add hashtags using #tag format to categorize this bookmark.</small>
+  <div class="space-y-2">
+    <%= form.label :description, class: "block font-medium text-gray-700" %>
+    <%= form.text_area :description, class: 'w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all min-h-32 resize-y' %>
+    <p class="text-sm text-gray-600">You can add hashtags using #tag format to categorize this bookmark.</p>
   </div>
 
-  <div class="form-group">
-    <%= form.submit "Create NIP-B0 Web Bookmark", class: 'btn btn-primary' %>
-    <%= link_to 'Cancel', bookmarks_path, class: 'btn btn-secondary' %>
+  <div class="flex gap-4">
+    <%= form.submit "Create NIP-B0 Web Bookmark", class: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5' %>
+    <%= link_to 'Cancel', bookmarks_path, class: 'bg-gray-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors' %>
   </div>
 <% end %>
