@@ -1,33 +1,33 @@
-<h1>Welcome to Pinstr</h1>
-<p class="mb-4">Pinstr is a bookmark manager that uses Nostr to store and sync your bookmarks.</p>
+<h1 class="text-4xl font-bold text-gray-800 mb-6">Welcome to Pinstr</h1>
+<p class="text-lg text-gray-600 mb-8">Pinstr is a bookmark manager that uses Nostr to store and sync your bookmarks.</p>
 
 <% if current_user %>
-  <div class="mb-4">
-    <p>You are logged in with public key <strong><%= current_user.public_key.truncate(10) %></strong>.</p>
-    <%= link_to "View your bookmarks", bookmarks_path, class: "btn btn-primary" %>
+  <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+    <p class="text-green-800 mb-4">You are logged in with public key <strong class="font-mono"><%= current_user.public_key.truncate(10) %></strong>.</p>
+    <%= link_to "View your bookmarks", bookmarks_path, class: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" %>
   </div>
 <% else %>
-  <div class="mb-4">
-    <p>Please log in with Nostr to manage your bookmarks.</p>
-    <%= link_to "Login", new_session_path, class: "btn btn-primary" %>
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+    <p class="text-blue-800 mb-4">Please log in with Nostr to manage your bookmarks.</p>
+    <%= link_to "Login", new_session_path, class: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" %>
   </div>
 <% end %>
 
-<h2>Bookmarklet</h2>
-<p>Drag this bookmarklet to your bookmarks bar to quickly save pages to Pinstr:</p>
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Bookmarklet</h2>
+<p class="text-gray-600 mb-6">Drag this bookmarklet to your bookmarks bar to quickly save pages to Pinstr:</p>
 
-<div class="bookmarklet-container">
-  <a href="javascript:<%= raw(bookmarklet_code) %>" class="bookmarklet-link">
+<div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-8 text-center mb-8">
+  <a href="javascript:<%= raw(bookmarklet_code) %>" class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:-translate-y-1 hover:shadow-2xl">
     Save to Pinstr
   </a>
-  <p style="margin-top: 1rem; color: #6c757d;">
-    <small>(Drag this link to your bookmarks bar)</small>
+  <p class="text-gray-500 text-sm mt-4">
+    (Drag this link to your bookmarks bar)
   </p>
 </div>
 
-<div class="bookmarklet-instructions">
-  <h3>How to use:</h3>
-  <ol>
+<div class="bg-blue-50 border-l-4 border-indigo-500 rounded-lg p-6 mb-8">
+  <h3 class="text-lg font-semibold text-gray-800 mb-4">How to use:</h3>
+  <ol class="list-decimal list-inside space-y-3 text-gray-700 mb-6">
     <li>Drag the "Save to Pinstr" link above to your browser's bookmarks bar.</li>
     <li>When you're on a webpage you want to save, click the bookmarklet in your bookmarks bar.</li>
     <li>A popup window will open with the page details pre-filled.</li>
@@ -35,42 +35,36 @@
     <li>Your bookmark will be saved to your Pinstr account and published to Nostr.</li>
   </ol>
   
-  <p class="text-center">
-    <a href="<%= bookmarklet_instructions_path %>" class="btn btn-secondary">
+  <div class="text-center">
+    <a href="<%= bookmarklet_instructions_path %>" class="bg-gray-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors">
       Detailed Instructions
     </a>
-  </p>
-</div>
-
-<h2>Nostr Integration</h2>
-<p>For full functionality, you'll need a Nostr browser extension. We recommend:</p>
-
-<div class="row">
-  <div class="col-12 col-md-4 mb-3">
-    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background-color: #f8f9fa; height: 100%;">
-      <h4 style="margin-top: 0; color: #2c3e50;">Alby</h4>
-      <p>A Bitcoin and Nostr extension with wallet capabilities</p>
-      <a href="https://getalby.com/" target="_blank" class="btn btn-sm btn-secondary">Get Alby</a>
-    </div>
-  </div>
-  
-  <div class="col-12 col-md-4 mb-3">
-    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background-color: #f8f9fa; height: 100%;">
-      <h4 style="margin-top: 0; color: #2c3e50;">nos2x</h4>
-      <p>A lightweight Nostr signer extension</p>
-      <a href="https://github.com/fiatjaf/nos2x" target="_blank" class="btn btn-sm btn-secondary">Get nos2x</a>
-    </div>
-  </div>
-  
-  <div class="col-12 col-md-4 mb-3">
-    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; background-color: #f8f9fa; height: 100%;">
-      <h4 style="margin-top: 0; color: #2c3e50;">Nostr Connect</h4>
-      <p>For iOS and macOS users</p>
-      <a href="https://github.com/BlockchainCommons/nostr-commander-app" target="_blank" class="btn btn-sm btn-secondary">Learn More</a>
-    </div>
   </div>
 </div>
 
-<div class="text-center mt-4">
-  <a href="<%= debug_bookmarklet_path %>" class="btn btn-secondary">Test Your Nostr Extension</a>
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Nostr Integration</h2>
+<p class="text-gray-600 mb-6">For full functionality, you'll need a Nostr browser extension. We recommend:</p>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 h-full">
+    <h4 class="text-lg font-semibold text-gray-800 mb-3">Alby</h4>
+    <p class="text-gray-600 mb-4">A Bitcoin and Nostr extension with wallet capabilities</p>
+    <a href="https://getalby.com/" target="_blank" class="bg-gray-500 text-white px-4 py-2 rounded font-medium hover:bg-gray-600 transition-colors text-sm">Get Alby</a>
+  </div>
+  
+  <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 h-full">
+    <h4 class="text-lg font-semibold text-gray-800 mb-3">nos2x</h4>
+    <p class="text-gray-600 mb-4">A lightweight Nostr signer extension</p>
+    <a href="https://github.com/fiatjaf/nos2x" target="_blank" class="bg-gray-500 text-white px-4 py-2 rounded font-medium hover:bg-gray-600 transition-colors text-sm">Get nos2x</a>
+  </div>
+  
+  <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 h-full">
+    <h4 class="text-lg font-semibold text-gray-800 mb-3">Nostr Connect</h4>
+    <p class="text-gray-600 mb-4">For iOS and macOS users</p>
+    <a href="https://github.com/BlockchainCommons/nostr-commander-app" target="_blank" class="bg-gray-500 text-white px-4 py-2 rounded font-medium hover:bg-gray-600 transition-colors text-sm">Learn More</a>
+  </div>
+</div>
+
+<div class="text-center">
+  <a href="<%= debug_bookmarklet_path %>" class="bg-gray-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition-colors">Test Your Nostr Extension</a>
 </div>
