@@ -1,17 +1,17 @@
-<div id="form-container" data-controller="bookmarklet-add">
-  <h1>Save Bookmark to Pinstr</h1>
+<div id="form-container" data-controller="bookmarklet-add" class="bg-white rounded-lg shadow-sm p-6">
+  <h1 class="text-2xl font-bold text-gray-800 mb-4">Save Bookmark to Pinstr</h1>
 
-  <div id="nostr-status" class="nostr-status" data-bookmarklet-add-target="status">
+  <div id="nostr-status" class="bg-gray-100 px-4 py-3 rounded-lg border-l-4 border-gray-400 mb-4 text-sm text-gray-600 font-medium" data-bookmarklet-add-target="status">
     Checking for Nostr extension...
   </div>
 
-  <div id="form-error" style="display: none;" class="alert" data-bookmarklet-add-target="formError"></div>
+  <div id="form-error" style="display: none;" class="bg-red-50 text-red-800 border border-red-200 px-3 py-2 rounded mb-4" data-bookmarklet-add-target="formError"></div>
 
   <%= form_with(model: @bookmark, url: create_from_bookmarklet_path, id: "bookmark-form", data: { "bookmarklet-add-target": "form", action: "submit->bookmarklet-add#handleSubmit" }) do |form| %>
     <% if @bookmark.errors.any? %>
-      <div class="alert">
-        <h2><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h2>
-        <ul>
+      <div class="bg-red-50 text-red-800 border border-red-200 px-3 py-2 rounded mb-4">
+        <h2 class="font-medium mb-2"><%= pluralize(@bookmark.errors.count, "error") %> prohibited this bookmark from being saved:</h2>
+        <ul class="list-disc list-inside space-y-1">
           <% @bookmark.errors.each do |error| %>
             <li><%= error.full_message %></li>
           <% end %>
@@ -19,133 +19,88 @@
       </div>
     <% end %>
 
-    <div class="form-group">
-      <%= form.label :title %>
-      <%= form.text_field :title, required: true, id: "bookmark-title", data: { "bookmarklet-add-target": "title" } %>
+    <div class="mb-4">
+      <%= form.label :title, class: "block mb-2 font-medium text-gray-700" %>
+      <%= form.text_field :title, required: true, id: "bookmark-title", class: "w-full px-3 py-2 border border-gray-300 rounded focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors", data: { "bookmarklet-add-target": "title" } %>
     </div>
 
-    <div class="form-group">
-      <%= form.label :url %>
-      <%= form.text_field :url, required: true, id: "bookmark-url", data: { "bookmarklet-add-target": "url" } %>
+    <div class="mb-4">
+      <%= form.label :url, class: "block mb-2 font-medium text-gray-700" %>
+      <%= form.text_field :url, required: true, id: "bookmark-url", class: "w-full px-3 py-2 border border-gray-300 rounded focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors", data: { "bookmarklet-add-target": "url" } %>
     </div>
 
-    <div class="form-group">
-      <%= form.label :description %>
-      <%= form.text_area :description, id: "bookmark-description", data: { "bookmarklet-add-target": "description" } %>
+    <div class="mb-4">
+      <%= form.label :description, class: "block mb-2 font-medium text-gray-700" %>
+      <%= form.text_area :description, id: "bookmark-description", class: "w-full px-3 py-2 border border-gray-300 rounded min-h-24 resize-y focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors", data: { "bookmarklet-add-target": "description" } %>
     </div>
 
     <% if @in_popup %>
       <%= hidden_field_tag :popup, "true" %>
     <% end %>
 
-    <div class="actions">
-      <button type="button" class="btn btn-secondary" data-action="click->bookmarklet-add#cancelBookmark">Cancel</button>
-      <%= form.submit "Save Bookmark", class: "btn btn-primary", id: "submit-button", data: { "bookmarklet-add-target": "submitButton" } %>
+    <div class="flex justify-between mt-6">
+      <button type="button" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition-colors" data-action="click->bookmarklet-add#cancelBookmark">Cancel</button>
+      <%= form.submit "Save Bookmark", class: "bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors", id: "submit-button", data: { "bookmarklet-add-target": "submitButton" } %>
     </div>
   <% end %>
   
-  <div class="nostr-help mt-3">
-    <p><small>
+  <div class="text-center text-gray-600 text-sm mt-4">
+    <p>
       <strong>Note:</strong> If you have a Nostr extension installed (like nos2x or Alby), you'll be prompted to sign this bookmark.
-      <a href="<%= debug_bookmarklet_path %>" target="_blank">Nostr extension not working?</a>
-    </small></p>
+      <a href="<%= debug_bookmarklet_path %>" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline">Nostr extension not working?</a>
+    </p>
   </div>
 </div>
 
 <style>
-  #form-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 0.75rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    display: none;
-  }
-  
-  .nostr-status {
-    background-color: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-    font-size: 14px;
-    color: #6c757d;
-    border-left: 4px solid #adb5bd;
-  }
-  
+  /* Nostr status states - JavaScript will toggle these classes */
   .nostr-status-connected {
-    background-color: #d1e7dd;
-    border-left: 4px solid #198754;
-    color: #0f5132;
+    background-color: rgb(220 252 231);
+    border-left-color: rgb(34 197 94);
+    color: rgb(22 101 52);
   }
   
   .nostr-status-disconnected {
-    background-color: #fff3cd;
-    border-left: 4px solid #ffc107;
-    color: #664d03;
+    background-color: rgb(254 249 195);
+    border-left-color: rgb(234 179 8);
+    color: rgb(133 77 14);
   }
   
   .nostr-status-error {
-    background-color: #f8d7da;
-    border-left: 4px solid #dc3545;
-    color: #842029;
+    background-color: rgb(254 226 226);
+    border-left-color: rgb(239 68 68);
+    color: rgb(153 27 27);
   }
   
   .success-message {
-    text-align: center;
-    padding: 2rem 0;
+    @apply text-center py-8;
   }
   
   .success-message h2 {
-    color: #198754;
-    margin-bottom: 1rem;
+    @apply text-green-600 mb-4;
   }
   
   .success-nostr-status {
-    background-color: #f8f9fa;
-    padding: 12px;
-    border-radius: 4px;
-    margin: 16px auto;
-    max-width: 80%;
-    font-size: 14px;
-    border-left: 4px solid #adb5bd;
+    @apply bg-gray-50 p-3 rounded mx-auto my-4 max-w-xs text-sm border-l-4 border-gray-400;
   }
   
   .success-nostr-status.success {
-    background-color: #d1e7dd;
-    border-left: 4px solid #198754;
-    color: #0f5132;
+    @apply bg-green-50 border-green-500 text-green-800;
   }
   
   .success-nostr-status.warning {
-    background-color: #fff3cd;
-    border-left: 4px solid #ffc107;
-    color: #664d03;
+    @apply bg-yellow-50 border-yellow-500 text-yellow-800;
   }
   
   .auto-close-notice {
-    margin-top: 1rem;
-    color: #6c757d;
+    @apply mt-4 text-gray-500;
   }
   
   .buttons {
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-  }
-  
-  .nostr-help {
-    text-align: center;
-    color: #6c757d;
-    font-size: 0.9rem;
-  }
-  
-  .mt-3 {
-    margin-top: 1rem;
+    @apply mt-6 flex justify-center gap-4;
   }
   
   #countdown {
-    font-weight: bold;
-    color: #0066cc;
+    @apply font-bold text-indigo-600;
   }
 </style>

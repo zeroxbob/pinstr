@@ -1,47 +1,51 @@
-<div class="container" data-controller="bookmarklet-debug">
-  <h1>Nostr Extension Debug</h1>
+<div class="" data-controller="bookmarklet-debug">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">Nostr Extension Debug</h1>
   
-  <div class="card mb-4">
-    <div class="card-header">Real-time Nostr Detection</div>
-    <div class="card-body">
-      <div id="live-status">
-        <p id="status-message" data-bookmarklet-debug-target="statusMessage">Checking...</p>
-        <div id="detection-log" class="detection-log" data-bookmarklet-debug-target="detectionLog"></div>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg font-medium text-gray-800">Real-time Nostr Detection</div>
+    <div class="p-4">
+      <div id="live-status" class="mb-4">
+        <p id="status-message" class="text-gray-700 mb-3" data-bookmarklet-debug-target="statusMessage">Checking...</p>
+        <div id="detection-log" class="bg-gray-100 p-3 rounded text-sm font-mono max-h-32 overflow-y-auto" data-bookmarklet-debug-target="detectionLog"></div>
       </div>
       
-      <button id="manual-check" class="btn btn-primary" data-action="click->bookmarklet-debug#manualCheck">Manual Check</button>
-      <button id="test-pubkey" class="btn btn-secondary" data-action="click->bookmarklet-debug#testPubkey">Test getPublicKey</button>
-      <button id="test-signing" class="btn btn-secondary" data-action="click->bookmarklet-debug#testSigning">Test signEvent</button>
+      <div class="flex flex-wrap gap-3">
+        <button id="manual-check" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors" data-action="click->bookmarklet-debug#manualCheck">Manual Check</button>
+        <button id="test-pubkey" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition-colors" data-action="click->bookmarklet-debug#testPubkey">Test getPublicKey</button>
+        <button id="test-signing" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition-colors" data-action="click->bookmarklet-debug#testSigning">Test signEvent</button>
+      </div>
     </div>
   </div>
   
-  <div class="card mb-4">
-    <div class="card-header">Browser Information</div>
-    <div class="card-body">
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>User Agent</th>
-            <td id="user-agent" data-bookmarklet-debug-target="userAgent"></td>
-          </tr>
-          <tr>
-            <th>URL</th>
-            <td id="current-url" data-bookmarklet-debug-target="currentUrl"></td>
-          </tr>
-          <tr>
-            <th>Extensions Detected</th>
-            <td id="extensions-list" data-bookmarklet-debug-target="extensionsList"></td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg font-medium text-gray-800">Browser Information</div>
+    <div class="p-4">
+      <div class="overflow-hidden bg-white border border-gray-200 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50">User Agent</th>
+              <td id="user-agent" class="px-4 py-3 text-sm text-gray-900" data-bookmarklet-debug-target="userAgent"></td>
+            </tr>
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50">URL</th>
+              <td id="current-url" class="px-4 py-3 text-sm text-gray-900" data-bookmarklet-debug-target="currentUrl"></td>
+            </tr>
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50">Extensions Detected</th>
+              <td id="extensions-list" class="px-4 py-3 text-sm text-gray-900" data-bookmarklet-debug-target="extensionsList"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   
-  <div class="card mb-4">
-    <div class="card-header">Test Results</div>
-    <div class="card-body">
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg font-medium text-gray-800">Test Results</div>
+    <div class="p-4">
       <div id="test-results" style="display: none;" data-bookmarklet-debug-target="testResults">
-        <pre id="test-output" class="code-block" data-bookmarklet-debug-target="testOutput"></pre>
+        <pre id="test-output" class="bg-gray-900 text-green-400 p-4 rounded text-sm font-mono overflow-x-auto" data-bookmarklet-debug-target="testOutput"></pre>
       </div>
     </div>
   </div>
