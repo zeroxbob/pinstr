@@ -23,5 +23,8 @@ module Pinstr
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Add Tailwind CSS builds directory to asset paths
+    config.assets.paths << Rails.root.join("app/assets/builds")
   end
 end
