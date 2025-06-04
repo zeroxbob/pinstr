@@ -18,7 +18,8 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Include Tailwind CSS %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
@@ -30,7 +31,7 @@
           <% if current_user %>
             <a href="/bookmarks" class="text-white/90 hover:text-white hover:bg-white/10 px-4 py-2 rounded transition-all">My Bookmarks</a>
             <a href="/bookmarks/new" class="text-white/90 hover:text-white hover:bg-white/10 px-4 py-2 rounded transition-all">New Bookmark</a>
-            <%= button_to "Logout", logout_path, method: :delete, class: "text-white/90 hover:text-white hover:bg-white/10 px-4 py-2 rounded transition-all bg-transparent border-none cursor-pointer" %>
+            <%= button_to "Logout", logout_path, method: :delete, class: "text-white/90 hover:text-white hover:bg-white/10 px-4 py-2 rounded transition-all bg-transparent border-none cursor-pointer font-inherit text-base" %>
           <% else %>
             <a href="/sessions/new" class="text-white/90 hover:text-white hover:bg-white/10 px-4 py-2 rounded transition-all">Login</a>
           <% end %>
@@ -38,13 +39,15 @@
       </div>
     </header>
 
-    <div class="max-w-6xl mx-auto px-6" data-controller="flash-message">
-      <% flash.each do |key, message| %>
-        <div class="<%= key == 'alert' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200' %> px-4 py-3 rounded-lg my-4 font-medium"><%= message %></div>
-      <% end %>
-      
-      <div class="bg-white rounded-lg shadow-lg p-8 my-8">
-        <%= yield %>
+    <div class="min-h-screen">
+      <div class="max-w-6xl mx-auto px-6 py-4" data-controller="flash-message">
+        <% flash.each do |key, message| %>
+          <div class="<%= key == 'alert' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200' %> px-4 py-3 rounded-lg my-4 font-medium"><%= message %></div>
+        <% end %>
+        
+        <div class="bg-white rounded-lg shadow-lg p-8 my-8">
+          <%= yield %>
+        </div>
       </div>
     </div>
   </body>
