@@ -30,9 +30,7 @@
           <% if current_user %>
             <a href="/bookmarks">My Bookmarks</a>
             <a href="/bookmarks/new">New Bookmark</a>
-            <span data-controller="nostr-auth">
-              <button data-nostr-auth-target="logoutButton" data-action="click->nostr-auth#logout">Logout</button>
-            </span>
+            <%= button_to "Logout", logout_path, method: :delete, class: "logout-button" %>
           <% else %>
             <a href="/sessions/new">Login</a>
           <% end %>
