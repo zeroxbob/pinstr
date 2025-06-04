@@ -61,6 +61,21 @@ RSpec.describe UrlService do
       expect(UrlService.valid?('not a url')).to be false
       expect(UrlService.valid?('http://')).to be false
     end
+    
+    it 'returns false for malformed protocol URLs' do
+      expect(UrlService.valid?('https://http')).to be false
+      expect(UrlService.valid?('http://https')).to be false
+      expect(UrlService.valid?('ftp://http')).to be false
+      expect(UrlService.valid?('https://ftp')).to be false
+    end
+    
+    it 'returns false for URLs with invalid host patterns' do
+      expect(UrlService.valid?('https://')).to be false
+      expect(UrlService.valid?('https://.')).to be false
+      expect(UrlService.valid?('https://..')).to be false
+      expect(UrlService.valid?('https://...')).to be false
+      expect(UrlService.valid?('https://com')).to be false
+    end
   end
   
   describe '.equivalent?' do

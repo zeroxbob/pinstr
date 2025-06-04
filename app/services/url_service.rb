@@ -1,4 +1,5 @@
 require 'uri'
+require 'active_model'
 
 class UrlService
   # Normalizes a URL to ensure consistent format
@@ -73,22 +74,74 @@ class UrlService
     canonical
   end
   
-  # Validates if a string is a valid URL
+  # Validates if a string is a valid URL using Rails' built-in validation
   def self.valid?(url)
     return false if url.blank?
     
-    # Try to normalize first
-    normalized = normalize(url)
-    
-    begin
-      uri = URI.parse(normalized)
-      # Check if it has a scheme and host
-      return false unless uri.scheme && uri.host && !uri.host.empty?
-      return true if uri.scheme =~ /\Ahttps?\z/i
-      false
-    rescue URI::InvalidURIError
-      false
+    # Create a temporary model to use Rails' URL validation
+    validator_class = Class.new do
+      include ActiveModel::Model
+      include ActiveModel::Attributes
+      include ActiveModel::Validations
+      
+      attribute :url, :string
+      validates :url, format: { 
+        with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), 
+        message: 'is not a valid URL' 
+      }
+      
+      # Additional custom validation
+      validate :validate_url_structure
+      
+      private
+      
+      def validate_url_structure
+        return if url.blank?
+        
+        begin
+          uri = URI.parse(url)
+          
+          # Must be HTTP or HTTPS
+          unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+            errors.add(:url, 'must use http or https protocol')
+            return
+          end
+          
+          # Must have a valid host
+          unless uri.host&.present?
+            errors.add(:url, 'must have a valid host')
+            return
+          end
+          
+          host = uri.host.downcase.strip
+          
+          # Reject obviously invalid hosts
+          if %w[http https ftp].include?(host)
+            errors.add(:url, 'host cannot be a protocol name')
+            return
+          end
+          
+          if host.match?(/\A\.+\z/)
+            errors.add(:url, 'host cannot be only dots')
+            return
+          end
+          
+          # Require domain structure (except localhost) or valid IP
+          ip_pattern = /\A(\d{1,3}\.){3}\d{1,3}\z/
+          unless host == 'localhost' || host.include?('.') || host.match?(ip_pattern)
+            errors.add(:url, 'host must be a valid domain or IP address')
+          end
+          
+        rescue URI::InvalidURIError
+          errors.add(:url, 'is malformed')
+        end
+      end
     end
+    
+    # Try to normalize first, then validate
+    normalized = normalize(url)
+    validator = validator_class.new(url: normalized)
+    validator.valid?
   end
   
   # Determines if two URLs are equivalent after canonicalization
