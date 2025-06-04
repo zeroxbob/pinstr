@@ -12,8 +12,14 @@
     </div>
   <% end %>
   
+  <% if @in_popup %>
+    <div class="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded mx-auto my-4 max-w-md text-sm">
+      <p><small>This window will close automatically in <span data-bookmarklet-success-target="countdown">3</span> seconds...</small></p>
+    </div>
+  <% end %>
+  
   <div class="flex justify-center gap-4 mt-6">
-    <button type="button" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors" data-action="click->bookmarklet-success#closeWindow">Close</button>
+    <button type="button" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors" data-action="click->bookmarklet-success#closeWindow">Close<%= @in_popup ? ' Now' : '' %></button>
     <a href="<%= bookmarks_path %>" class="bg-gray-200 text-gray-800 px-6 py-2 rounded hover:bg-gray-300 transition-colors" target="_blank">View All Bookmarks</a>
   </div>
   
