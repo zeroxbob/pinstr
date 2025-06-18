@@ -1,47 +1,51 @@
-<div class="container">
-  <h1>Nostr Extension Debug</h1>
+<div class="" data-controller="bookmarklet-debug">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">Nostr Extension Debug</h1>
   
-  <div class="card mb-4">
-    <div class="card-header">Real-time Nostr Detection</div>
-    <div class="card-body">
-      <div id="live-status">
-        <p id="status-message">Checking...</p>
-        <div id="detection-log" class="detection-log"></div>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg font-medium text-gray-800">Real-time Nostr Detection</div>
+    <div class="p-4">
+      <div id="live-status" class="mb-4">
+        <p id="status-message" class="text-gray-700 mb-3" data-bookmarklet-debug-target="statusMessage">Checking...</p>
+        <div id="detection-log" class="bg-gray-100 p-3 rounded text-sm font-mono max-h-32 overflow-y-auto" data-bookmarklet-debug-target="detectionLog"></div>
       </div>
       
-      <button id="manual-check" class="btn btn-primary">Manual Check</button>
-      <button id="test-pubkey" class="btn btn-secondary">Test getPublicKey</button>
-      <button id="test-signing" class="btn btn-secondary">Test signEvent</button>
+      <div class="flex flex-wrap gap-3">
+        <button id="manual-check" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors" data-action="click->bookmarklet-debug#manualCheck">Manual Check</button>
+        <button id="test-pubkey" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition-colors" data-action="click->bookmarklet-debug#testPubkey">Test getPublicKey</button>
+        <button id="test-signing" class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition-colors" data-action="click->bookmarklet-debug#testSigning">Test signEvent</button>
+      </div>
     </div>
   </div>
   
-  <div class="card mb-4">
-    <div class="card-header">Browser Information</div>
-    <div class="card-body">
-      <table class="table">
-        <tbody>
-          <tr>
-            <th>User Agent</th>
-            <td id="user-agent"></td>
-          </tr>
-          <tr>
-            <th>URL</th>
-            <td id="current-url"></td>
-          </tr>
-          <tr>
-            <th>Extensions Detected</th>
-            <td id="extensions-list"></td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg font-medium text-gray-800">Browser Information</div>
+    <div class="p-4">
+      <div class="overflow-hidden bg-white border border-gray-200 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50">User Agent</th>
+              <td id="user-agent" class="px-4 py-3 text-sm text-gray-900" data-bookmarklet-debug-target="userAgent"></td>
+            </tr>
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50">URL</th>
+              <td id="current-url" class="px-4 py-3 text-sm text-gray-900" data-bookmarklet-debug-target="currentUrl"></td>
+            </tr>
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 bg-gray-50">Extensions Detected</th>
+              <td id="extensions-list" class="px-4 py-3 text-sm text-gray-900" data-bookmarklet-debug-target="extensionsList"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   
-  <div class="card mb-4">
-    <div class="card-header">Test Results</div>
-    <div class="card-body">
-      <div id="test-results" style="display: none;">
-        <pre id="test-output" class="code-block"></pre>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
+    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg font-medium text-gray-800">Test Results</div>
+    <div class="p-4">
+      <div id="test-results" style="display: none;" data-bookmarklet-debug-target="testResults">
+        <pre id="test-output" class="bg-gray-900 text-green-400 p-4 rounded text-sm font-mono overflow-x-auto" data-bookmarklet-debug-target="testOutput"></pre>
       </div>
     </div>
   </div>
@@ -52,169 +56,6 @@
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const statusMessage = document.getElementById('status-message');
-  const detectionLog = document.getElementById('detection-log');
-  const testResults = document.getElementById('test-results');
-  const testOutput = document.getElementById('test-output');
-  
-  // Fill in browser info
-  document.getElementById('user-agent').textContent = navigator.userAgent;
-  document.getElementById('current-url').textContent = window.location.href;
-  
-  // Log function
-  function log(message) {
-    console.log(message);
-    const logEntry = document.createElement('div');
-    logEntry.className = 'log-entry';
-    logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
-    detectionLog.appendChild(logEntry);
-    detectionLog.scrollTop = detectionLog.scrollHeight;
-  }
-  
-  // Check for common extensions
-  function checkExtensions() {
-    const extensions = [];
-    
-    // Check for common extension objects
-    if (window.nostr) extensions.push('Nostr (window.nostr)');
-    if (window.webln) extensions.push('WebLN (window.webln)');
-    if (window.ethereum) extensions.push('Ethereum (window.ethereum)');
-    if (window.bitcoin) extensions.push('Bitcoin (window.bitcoin)');
-    
-    document.getElementById('extensions-list').textContent = extensions.length > 0 ? extensions.join(', ') : 'None detected';
-  }
-  
-  // Main Nostr check function
-  function checkNostr() {
-    log('Starting Nostr check...');
-    
-    if (!window.nostr) {
-      statusMessage.textContent = 'No window.nostr object found';
-      statusMessage.className = 'status-error';
-      log('window.nostr is not defined');
-      return false;
-    }
-    
-    log('window.nostr found: ' + typeof window.nostr);
-    log('window.nostr object: ' + JSON.stringify(Object.keys(window.nostr)));
-    
-    const hasPubkey = typeof window.nostr.getPublicKey === 'function';
-    const hasSignEvent = typeof window.nostr.signEvent === 'function';
-    
-    log('getPublicKey method: ' + typeof window.nostr.getPublicKey);
-    log('signEvent method: ' + typeof window.nostr.signEvent);
-    
-    if (hasPubkey && hasSignEvent) {
-      statusMessage.textContent = 'Nostr extension detected and ready!';
-      statusMessage.className = 'status-success';
-      log('Nostr extension fully functional');
-      return true;
-    } else {
-      const missing = [];
-      if (!hasPubkey) missing.push('getPublicKey');
-      if (!hasSignEvent) missing.push('signEvent');
-      
-      statusMessage.textContent = 'Nostr extension missing methods: ' + missing.join(', ');
-      statusMessage.className = 'status-error';
-      log('Nostr extension missing methods: ' + missing.join(', '));
-      return false;
-    }
-  }
-  
-  // Continuous checking
-  let checkCount = 0;
-  function continuousCheck() {
-    checkCount++;
-    log(`Continuous check #${checkCount}`);
-    
-    if (checkNostr()) {
-      log('Nostr detected, stopping continuous checks');
-      return;
-    }
-    
-    if (checkCount < 20) {
-      setTimeout(continuousCheck, 1000);
-    } else {
-      log('Gave up after 20 attempts');
-    }
-  }
-  
-  // Manual check button
-  document.getElementById('manual-check').addEventListener('click', function() {
-    log('Manual check requested');
-    checkExtensions();
-    checkNostr();
-  });
-  
-  // Test pubkey button
-  document.getElementById('test-pubkey').addEventListener('click', async function() {
-    testResults.style.display = 'block';
-    testOutput.textContent = 'Testing getPublicKey...';
-    
-    if (!window.nostr || typeof window.nostr.getPublicKey !== 'function') {
-      testOutput.textContent = 'Error: getPublicKey not available';
-      testOutput.className = 'code-block error';
-      return;
-    }
-    
-    try {
-      const pubkey = await window.nostr.getPublicKey();
-      testOutput.textContent = 'Success: ' + pubkey;
-      testOutput.className = 'code-block success';
-      log('getPublicKey test successful: ' + pubkey);
-    } catch (error) {
-      testOutput.textContent = 'Error: ' + error.message;
-      testOutput.className = 'code-block error';
-      log('getPublicKey test failed: ' + error.message);
-    }
-  });
-  
-  // Test signing button
-  document.getElementById('test-signing').addEventListener('click', async function() {
-    testResults.style.display = 'block';
-    testOutput.textContent = 'Testing signEvent...';
-    
-    if (!window.nostr || typeof window.nostr.signEvent !== 'function' || typeof window.nostr.getPublicKey !== 'function') {
-      testOutput.textContent = 'Error: Required Nostr methods not available';
-      testOutput.className = 'code-block error';
-      return;
-    }
-    
-    try {
-      // Get pubkey first
-      const pubkey = await window.nostr.getPublicKey();
-      
-      // Create a test event
-      const testEvent = {
-        kind: 1,
-        pubkey: pubkey,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [],
-        content: 'This is a test event from Pinstr debugging page.'
-      };
-      
-      // Sign it
-      const signedEvent = await window.nostr.signEvent(testEvent);
-      
-      // Display result
-      testOutput.textContent = JSON.stringify(signedEvent, null, 2);
-      testOutput.className = 'code-block success';
-      log('signEvent test successful');
-    } catch (error) {
-      testOutput.textContent = 'Error: ' + error.message;
-      testOutput.className = 'code-block error';
-      log('signEvent test failed: ' + error.message);
-    }
-  });
-  
-  // Start initial checks
-  checkExtensions();
-  continuousCheck();
-});
-</script>
 
 <style>
 .card {

@@ -28,6 +28,10 @@ class SessionsController < ApplicationController
 
   def destroy
     reset_session
-    render json: { success: true, message: "Logged out successfully" }
+    
+    respond_to do |format|
+      format.html { redirect_to root_path, notice: "Logged out successfully" }
+      format.json { render json: { success: true, message: "Logged out successfully" } }
+    end
   end
 end
