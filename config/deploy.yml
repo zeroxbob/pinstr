@@ -89,7 +89,7 @@ accessories:
       clear:
         DB_HOST: "pinstr-postgres"
         POSTGRES_USER: "pinstr"
-        POSTGRES_DB: "pinstr_production"
+        POSTGRES_DB: "postgres"  # Start with postgres DB to allow creating other databases
       secret:
         - POSTGRES_PASSWORD
         - DATABASE_URL
