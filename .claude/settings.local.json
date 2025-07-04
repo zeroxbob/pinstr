@@ -5,7 +5,12 @@
       "Bash(npm run lint)",
       "Bash(npm run:*)",
       "Bash(rm:*)",
-      "Bash(bundle:*)"
+      "Bash(bundle:*)",
+      "Bash(find:*)",
+      "Bash(bin/rails:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:pinstr.co)"
     ],
     "deny": []
   }
