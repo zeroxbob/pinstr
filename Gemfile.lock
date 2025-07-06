@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/midnight-wonderer/ruby-bootsnap.git
+  revision: 0e0df3395d5ee25713cb47e843236fcaded209f1
+  branch: bug/test-forks-before-usage
+  specs:
+    bootsnap (1.18.4)
+      msgpack (~> 1.2)
+
+GIT
   remote: https://github.com/zeroxbob/nostr-ruby.git
   revision: d83273332ee991620481379b078141b1738ba6b6
   specs:
@@ -96,8 +104,6 @@ GEM
     bindex (0.8.1)
     bip-schnorr (0.4.0)
       ecdsa (~> 1.2.0)
-    bootsnap (1.18.4)
-      msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
     builder (3.3.0)
@@ -464,7 +470,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  bootsnap
+  bootsnap!
   brakeman
   capybara
   capybara-playwright-driver
