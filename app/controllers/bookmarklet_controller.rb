@@ -4,10 +4,6 @@ class BookmarkletController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:create]
   before_action :authenticate_user!, unless: -> { Rails.env.test? || current_user }
 
-  def instructions
-    # Show bookmarklet installation instructions
-  end
-
   def add
     @bookmark = Bookmark.new(
       url: params[:url],
