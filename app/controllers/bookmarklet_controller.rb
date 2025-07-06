@@ -8,10 +8,6 @@ class BookmarkletController < ApplicationController
     # Show bookmarklet installation instructions
   end
 
-  def debug
-    # Debugging page for Nostr extension integration
-  end
-
   def add
     @bookmark = Bookmark.new(
       url: params[:url],
