@@ -3,12 +3,7 @@
   <p data-nostr-auth-target="status" class="status-message">Checking for Nostr extension...</p>
   
   <div class="login-info">
-    <p>To login, you need a <a href="https://nostr.com/" target="_blank">Nostr</a> browser extension:</p>
-    <ul>
-      <li><a href="https://getalby.com/" target="_blank">Alby</a></li>
-      <li><a href="https://github.com/fiatjaf/nos2x" target="_blank">nos2x</a></li>
-      <li><a href="https://chrome.google.com/webstore/detail/blockcore-signer/hpjpadgjfjjgpmgfafgjbcpdgpmdpebg" target="_blank">Blockcore</a></li>
-    </ul>
+    <p>To login, you need a <a href="https://nostr.net/#nip-07-browser-extensions" class="text-indigo-600 hover:text-indigo-800 hover:underline" target="_blank">Nostr browser extension.</a></p>
   </div>
   
   <button 
@@ -20,7 +15,7 @@
   </button>
   
   <div class="debug-info">
-    <p><small>If you're having trouble logging in, please check your browser console for more information.</small></p>
+    <p><small>If you're having trouble logging in, check our <%= link_to 'debug page', debug_bookmarklet_path, class: 'text-indigo-600 hover:text-indigo-800 hover:underline' %></small></p>
   </div>
 </div>
 
