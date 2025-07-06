@@ -17,10 +17,10 @@ Rails.application.routes.draw do
   # Bookmarklet routes
   get "/bookmarklet", to: "bookmarklet#add", as: :bookmarklet
   post "/bookmarklet", to: "bookmarklet#create", as: :create_from_bookmarklet
-  get "/bookmarklet/instructions", to: "bookmarklet#instructions", as: :bookmarklet_instructions
   get "/bookmarklet/success", to: "bookmarklet#success", as: :success_bookmarklet
 
   resources :sessions
   resources :bookmarks
   resources :debug, only: :index
+  resources :instructions, only: :index
 end
