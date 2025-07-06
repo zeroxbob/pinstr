@@ -1,24 +1,8 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Nostr app to bookmark URLs.
 
-Things you may want to cover:
+- The user signs in and authenticates through their Nostr extension.
+- Any bookmark that is added is broadcast to one or multiple Nostr relays.
+- Bookmarks are sent as Nostr notes following the format defined in NIP-B0.
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
