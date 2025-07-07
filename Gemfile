@@ -68,4 +68,4 @@ group :test do
   gem "capybara-playwright-driver"
 end
 
-gem "tailwindcss-rails", "~> 4.2"
+gem "tailwindcss-rails", "~> 4.3"
